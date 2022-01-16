@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Photo Tag</string>
+    <string name="select_Directory">Select Directory</string>
+    <string name="setting">Settig</string>
+    <string name="delete">Delete File</string>
+    <string name="photo">photo</string>
+    <string name="name">Name</string>
+    <string name="todo">TODO</string>
+    <string name="copy_text">Copy PlaceAddress Text</string>
+    <string name="rename_file">Rename file with DateTime Info</string>
+    <string name="text_color">Text Color</string>
+    <string name="outline_color">Outline Color</string>
+    <string name="color_plate">colorPlate</string>
+    <string name="arrow_text">→\n→</string>
+    <string name="color_hexa_value">F1F2F3F4</string>
+    <string name="color_range">colorRange</string>
+    <string name="cancel">Cancel</string>
+    <string name="select">Select</string>
+
+    <string name="messages_header">Preference Setting</string>
+
+    <!-- Messages Preferences -->
+    <string name="radius_title">Search Radius in Meters</string>
+    <string name="sort_title">Sort PlaceList</string>
+    <string name="span_title">Number of photos in columns</string>
+    <string name="signature_alpha">Alpha value (100~255)</string>
+
+    <string name="auto_title">PlaceList AutoLoad</string>
+
+</resources>

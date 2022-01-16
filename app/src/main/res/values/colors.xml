@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6361bf</color>
+    <color name="markInColor">#FFFFFF88</color>
+    <color name="markOutColor">#AA333333</color>
+    <color name="recycleView">#fccffc</color>
+    <color name="placeAddress">#3300003F</color>
+    <color name="black">#FF000000</color>
+    <color name="darkGray">#464242</color>
+    <color name="placeNameBack">#80B0C2C5</color>
+    <color name="placeAddressBack">#80C0D2D5</color>
+
+    <color name="setBack">#DFDC07</color>
+    <color name="infoColor">#F7EACB</color>
+    <color name="xorColor">#ccCAD8AA</color>
+
+</resources>

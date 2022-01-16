@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/drawable/scrollbar_big_thumbs.xml" value="0.25104166666666666" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/drawable/scrollbar_vertical_thumb.xml" value="0.25104166666666666" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/drawable/scrollbar_vertical_track.xml" value="0.25104166666666666" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/activity_directory.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/activity_main.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/activity_markup.xml" value="0.12639311043566362" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/activity_placelist.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/activity_settings.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/photo_item.xml" value="0.22407407407407406" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/place_item.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/layout/type_item.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/MarkUpPhoto/app/src/main/res/xml/set_preferences.xml" value="0.13221884498480244" />
+        <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/layout/activity_markup.xml" value="0.1359375" />
+        <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/menu/main_menu.xml" value="0.1359375" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Android</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

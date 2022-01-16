@@ -1,0 +1,68 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:and="http://schemas.android.com/apk/res/android"
+    xmlns:android="urn:oasis:names:tc:xliff:document:1.2">
+
+    <PreferenceCategory app:title="@string/messages_header"
+        >
+
+        <ListPreference
+            app:defaultValue="123"
+            app:entries="@array/radius_values"
+            app:entryValues="@array/radius_values"
+            app:key="radius"
+            app:icon="@mipmap/radius"
+            app:iconSpaceReserved="true"
+            app:title="@string/radius_title"
+            app:summary="radius in meters" />
+
+        <ListPreference
+            android:id="@+id/sort"
+            app:defaultValue="none"
+            app:entries="@array/sort_values"
+            app:entryValues="@array/sort_values"
+            app:key="sort"
+            app:icon="@mipmap/sort"
+            app:summary="how to list up nearby place list"
+            app:title="@string/sort_title" />
+
+        <SwitchPreferenceCompat
+            app:key="autoLoad"
+            and:defaultValue="false"
+            app:icon="@mipmap/auto_list"
+            app:summary="If on, place list will be automatically accessed when the photo is selected"
+            app:title="@string/auto_title" />
+
+        <ListPreference
+            app:defaultValue="span"
+            app:entries="@array/span_values"
+            app:entryValues="@array/span_values"
+            app:key="span"
+            app:icon="@mipmap/span"
+            app:summary="this and that"
+            app:title="@string/span_title" />
+
+        <EditTextPreference
+            app:key="alpha"
+            app:defaultValue="150"
+            app:title="@string/signature_alpha"
+            app:summary="Signature alpha value (255 is full)"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+<!--    <PreferenceCategory app:title="@string/sync_header">-->
+
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="sync"-->
+<!--            app:title="@string/sync_title" />-->
+
+<!--        <SwitchPreferenceCompat-->
+<!--            app:dependency="sync"-->
+<!--            app:key="attachment"-->
+<!--            app:summaryOff="@string/attachment_summary_off"-->
+<!--            app:summaryOn="@string/attachment_summary_on"-->
+<!--            app:title="@string/attachment_title" />-->
+
+<!--    </PreferenceCategory>-->
+
+</PreferenceScreen>

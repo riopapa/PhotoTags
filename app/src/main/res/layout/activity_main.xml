@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/border_back"
+    android:id="@+id/main_layout"
+    tools:context=".MainActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        app:layoutManager="GridLayoutManager"
+        app:spanCount="2"
+        android:choiceMode="multipleChoice"
+        style="@style/up_down_scroll_thumb"
+        >
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/undo"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="40dp"
+        android:contentDescription="TODO"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/undo"
+        app:backgroundTint="#44FF0000"
+        app:maxImageSize="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+         />
+
+</RelativeLayout>
