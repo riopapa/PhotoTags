@@ -13,7 +13,7 @@ import static com.urrecliner.phototag.Vars.fabUndo;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mainMenu;
 import static com.urrecliner.phototag.Vars.photoAdapter;
-import static com.urrecliner.phototag.Vars.photos;
+import static com.urrecliner.phototag.Vars.photoTags;
 
 class DeleteMulti {
 
@@ -40,16 +40,16 @@ class DeleteMulti {
         @Override
         protected String doInBackground(String... inputParams) {
 
-            for (int pos = photos.size() - 1; pos >= 0; pos--) {  // should be last to first
-                Photo photo = photos.get(pos);
-                if (photo.isChecked()) {
-                    File file2del = photo.getFullFileName();
+            for (int pos = photoTags.size() - 1; pos >= 0; pos--) {  // should be last to first
+                PhotoTag photoTag = photoTags.get(pos);
+                if (photoTag.isChecked()) {
+                    File file2del = new File (photoTag.fullFolder, photoTag.photoName);
                     if (file2del.delete()) {
                         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file2del)));
                         deleteCount++;
                         msg.append("\n");
                         msg.append(file2del.getName());
-                        publishProgress("(" + pos + ") " + photo.getShortName() + " deleted", "" + pos);
+                        publishProgress("(" + pos + ") " + photoTag.photoName + " deleted", "" + pos);
                     }
                 }
             }
@@ -61,9 +61,9 @@ class DeleteMulti {
 //            String debugText = values[0];
 //            Toast.makeText(mContext, debugText, Toast.LENGTH_SHORT).show();
             int pos = Integer.parseInt(values[1]);
-            photos.remove(pos);
+            photoTags.remove(pos);
             photoAdapter.notifyItemRemoved(pos);
-            photoAdapter.notifyItemRangeChanged(pos, photos.size());
+//            photoAdapter.notifyItemRangeChanged(pos, photoTags.size());
         }
 
         @Override

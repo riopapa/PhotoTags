@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import static com.urrecliner.phototag.Vars.databaseIO;
 import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.sharedAlpha;
 import static com.urrecliner.phototag.Vars.sizeX;
 
@@ -34,23 +34,25 @@ class BuildBitMap {
     Bitmap signatureMap;
     Activity activity;
     Context context;
-    int cameraOrientation;
+    String orient;
 
-    public void init(Activity activity, Context context, int cameraOrientation) {
+    public void init(Activity activity, Context context, String orient) {
         this.activity = activity;this.context = context;
-        this.cameraOrientation = cameraOrientation;
+        this.orient = orient;
         this.signatureMap = buildSignatureMap();
     }
 
-    Photo makeSumNail(Photo photo) {
+    // build photoTag.sumName & update room db
+
+    PhotoTag updateSumNail(PhotoTag nowPT) {
         ExifInterface exif;
-        String fullFileName = photo.getFullFileName().toString();
-        Bitmap bitmap = null;
-        String Orientation = "1";
+        String fullFileName = nowPT.getFullFolder()+"/"+nowPT.getPhotoName();
+        Bitmap bitmap;
+        String orient;
         try {
             bitmap = BitmapFactory.decodeFile(fullFileName).copy(Bitmap.Config.RGB_565, false);
         } catch (Exception e) {
-            Toast.makeText(mContext,fullFileName.toString()+" file error", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext,fullFileName+" file error", Toast.LENGTH_LONG).show();
             bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.signature).copy(Bitmap.Config.RGB_565, false);
         }
         assert bitmap != null;
@@ -59,23 +61,27 @@ class BuildBitMap {
         try {
             exif = new ExifInterface(fullFileName);
         } catch (IOException e) {
-            Toast.makeText(mContext,"No photo information on\n"+photo.getShortName(), Toast.LENGTH_LONG).show();
-            return photo;
+            Toast.makeText(mContext,"No photo information on\n"+nowPT.getPhotoName(), Toast.LENGTH_LONG).show();
+            return nowPT;
         }
         try {
-            Orientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-        } catch (Exception e) { }
-        int orientation = Integer.parseInt(Orientation);
-        if (orientation == 0)
-            orientation = 1;
-        if (orientation != 1) {
+            orient = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+        } catch (Exception e) { orient = ""; }
+        if (orient.equals("0"))
+            orient = "1";
+        if (!orient.equals("1")) {
             Matrix matrix = new Matrix();
-            if (orientation == 8)
-                matrix.postRotate(-90);
-            else if (orientation == 6)
-                matrix.postRotate(90);
-            else if (orientation == 3)
-                matrix.postRotate(180);
+            switch (orient) {
+                case "8":
+                    matrix.postRotate(-90);
+                    break;
+                case "6":
+                    matrix.postRotate(90);
+                    break;
+                case "3":
+                    matrix.postRotate(180);
+                    break;
+            }
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
             width = bitmap.getWidth();
             height = bitmap.getHeight();
@@ -92,10 +98,9 @@ class BuildBitMap {
         Bitmap sBitmap = Bitmap.createBitmap(bitmap, (width - sWidth)/2, (height - sHeight) /2, sWidth, sHeight);       // crop center
         int outWidth = sizeX * 8 / 18;   // smaller scale
         int outHeight = outWidth * sHeight / sWidth;
-        photo.setOrientation(orientation);
-        photo.setBitmap(Bitmap.createScaledBitmap(sBitmap, outWidth, outHeight, false));
-        databaseIO.insert(photo);
-        return photo;
+        nowPT.setOrient(orient);
+        nowPT.setSumNailMap(Bitmap.createScaledBitmap(sBitmap, outWidth, outHeight, false));
+        return nowPT;
     }
 
     Bitmap makeChecked(Bitmap photoMap) {

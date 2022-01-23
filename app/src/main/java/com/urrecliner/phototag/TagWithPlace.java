@@ -4,20 +4,19 @@ import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.byPlaceName;
 import static com.urrecliner.phototag.Vars.copyPasteGPS;
 import static com.urrecliner.phototag.Vars.copyPasteText;
-import static com.urrecliner.phototag.Vars.databaseIO;
-import static com.urrecliner.phototag.Vars.longFolder;
+import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.nowDownLoading;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.nowPos;
 import static com.urrecliner.phototag.Vars.photoAdapter;
+import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.photoView;
-import static com.urrecliner.phototag.Vars.photos;
+import static com.urrecliner.phototag.Vars.photoTags;
 import static com.urrecliner.phototag.Vars.placeActivity;
 import static com.urrecliner.phototag.Vars.placeInfos;
 import static com.urrecliner.phototag.Vars.placeType;
-import static com.urrecliner.phototag.Vars.sharedAutoLoad;
 import static com.urrecliner.phototag.Vars.sharedRadius;
 import static com.urrecliner.phototag.Vars.tvPlaceAddress;
 import static com.urrecliner.phototag.Vars.typeAdapter;
@@ -40,7 +39,6 @@ import android.location.Geocoder;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,10 +74,9 @@ public class TagWithPlace extends AppCompatActivity {
     String dateTimeColon, dateTimeFileName = null;
     String maker, model;
     double latitude, longitude, altitude;
-
+    PhotoTag orgPT;
     File fileFullName;
-    int orientation;
-    Photo photo;
+    String orient;
     Bitmap bitmap;
     ImageView photoImage;
 
@@ -104,30 +101,30 @@ public class TagWithPlace extends AppCompatActivity {
         typeAdapter = new TypeAdapter(typeInfos);
         typeRecyclerView.setAdapter(typeAdapter);
 
-        photo = photos.get(nowPos);
-        photo.setChecked(false);
-        photos.set(nowPos, photo);
-        photoAdapter.notifyItemChanged(nowPos, photo);
+//        orgPT.isChecked = false;
+//        photoTags.set(nowPos, orgPT);
+//        photoAdapter.notifyItemChanged(nowPos, orgPT);
         utils.showFolder(this.getSupportActionBar());
 
         buildPhotoScreen();
     }
 
     void buildPhotoScreen() {
-        photo = photos.get(nowPos);
-        fileFullName = photo.getFullFileName();
+
+        orgPT = photoTags.get(nowPos);
+        fileFullName = new File (orgPT.fullFolder, orgPT.photoName);
         if (!fileFullName.exists())
             return;
         photoImage = findViewById(R.id.image);
         bitmap = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
         getPhotoExif(fileFullName);
-        photo.setOrientation(orientation);
-        if (orientation != 1) {
-            if (orientation == 6) {
+        orgPT.setOrient(orient);
+        if (!orient.equals("1")) {
+            if (orient.equals("6")) {
                 Matrix matrix = new Matrix();
                 matrix.postRotate(90);
                 bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-                orientation = 1;
+                orient = "1";
             }
         }
         photoImage.setImageBitmap(bitmap);
@@ -137,8 +134,8 @@ public class TagWithPlace extends AppCompatActivity {
         getLocationInfo();
         TextView tv = findViewById(R.id.photoName);
         tv.setText(fileFullName.getName());
-        ImageView iVPlace = findViewById(R.id.getLocation);
-        iVPlace.setOnClickListener(view -> {
+        ImageView ivGetPlaces = findViewById(R.id.queryLocs);
+        ivGetPlaces.setOnClickListener(view -> {
             if (latitude == 0 && longitude == 0) {
                 Toast.makeText(mContext,"No GPS Information to retrieve places",Toast.LENGTH_LONG).show();
             } else {
@@ -146,7 +143,7 @@ public class TagWithPlace extends AppCompatActivity {
             }
         });
 //        iVPlace.setImageBitmap(utils.maskedIcon(typeIcons[typeNumber]));
-        iVPlace.setImageResource(typeIcons[typeNumber]);
+        ivGetPlaces.setImageResource(typeIcons[typeNumber]);
 
         ImageView iVMark = findViewById(R.id.add_mark);
         iVMark.setOnClickListener(view -> {
@@ -155,21 +152,9 @@ public class TagWithPlace extends AppCompatActivity {
             EditText etPlace = findViewById(R.id.placeAddress);
             nowPlace = etPlace.getText().toString();
             if (nowPlace.length() > 5) {
-                Photo nPhoto = new Photo(TagOnePhoto.insertGeoInfo(photo));
-                String nFileName = nPhoto.getFullFileName().toString();
-                if (photos.get(nowPos-1).getFullFileName().toString().equals(nFileName)) {
-                    removeItemView(nowPos-1);
-                    databaseIO.delete(nPhoto.getFullFileName());
-                    nowPos--;
-                }
-
-                nPhoto.setBitmap(null);
-                nPhoto.setOrientation(photo.getOrientation());
-                nPhoto = buildDB.getPhotoWithMap(nPhoto);
-                photos.add(nowPos, nPhoto);
+                orgPT.photoName = NewPhoto.add(orgPT);
                 photoAdapter.notifyItemInserted(nowPos);
-                photoAdapter.notifyItemChanged(nowPos, nPhoto);
-                photoAdapter.notifyItemChanged(nowPos+1);
+                photoTags.add(nowPos, orgPT);
                 finish();
             }
         });
@@ -206,7 +191,13 @@ public class TagWithPlace extends AppCompatActivity {
             ivLeft.post(() -> {
                 int width = ivLeft.getMeasuredWidth();
                 int height = ivLeft.getMeasuredHeight();
-                Bitmap bitmap = maskImage(photos.get(nowPos-1).getBitmap(), false);
+                PhotoTag pTag = photoTags.get(nowPos-1);
+                Bitmap sumNail = pTag.getSumNailMap();
+                if (sumNail == null) {
+                    pTag = BuildDB.getPhotoWithMap(pTag);
+                    sumNail = pTag.getSumNailMap();
+                }
+                Bitmap bitmap = maskImage(sumNail, false);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
                 ivLeft.setImageBitmap(bitmap);
             });
@@ -219,11 +210,17 @@ public class TagWithPlace extends AppCompatActivity {
             ivLeft.setVisibility(View.INVISIBLE);
 
         final ImageView ivRight = findViewById(R.id.imageR);
-        if (nowPos < photos.size()-1) {
+        if (nowPos < photoTags.size()-1) {
             ivRight.post(() -> {
                 int width = ivRight.getMeasuredWidth();
                 int height = ivRight.getMeasuredHeight();
-                Bitmap bitmap = maskImage(photos.get(nowPos+1).getBitmap(), true);
+                PhotoTag pTag = photoTags.get(nowPos+1);
+                Bitmap sumNail = pTag.getSumNailMap();
+                if (sumNail == null) {
+                    pTag = BuildDB.getPhotoWithMap(pTag);
+                    sumNail = pTag.getSumNailMap();
+                }
+                Bitmap bitmap = maskImage(sumNail, true);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
                 ivRight.setImageBitmap(bitmap);
             });
@@ -235,9 +232,9 @@ public class TagWithPlace extends AppCompatActivity {
         }
         else
             ivRight.setVisibility(View.INVISIBLE);
-        if (sharedAutoLoad && !photo.getShortName().endsWith("_ha.jpg")) {
-            getPlaceByLatLng();
-        }
+//        if (sharedAutoLoad && !orgPT.photoName.endsWith("_ha.jpg")) {
+//            getPlaceByLatLng();
+//        }
     }
 
     private Bitmap maskImage(Bitmap mainImage, boolean isRight) {
@@ -251,20 +248,20 @@ public class TagWithPlace extends AppCompatActivity {
     }
 
     private void save_rotatedPhoto() {
-        File orgFileName, tgtFileName;
-        orgFileName = photo.getFullFileName();
-        orientation = 1; // (bitmap.getWidth() > bitmap.getHeight()) ? 1:6;
-        tgtFileName = new File (orgFileName.getParentFile(), orgFileName.getName().substring(0,orgFileName.getName().length()-4)+"R.jpg");
-//        databaseIO.delete(orgFileName);
-        String outName = tgtFileName.toString();
-        utils.makeBitmapFile(orgFileName, outName, bitmap, orientation);
-        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tgtFileName)));
-        photo.setOrientation(orientation);
-        photo.setChecked(false);
-        photo.setFullFileName(tgtFileName);
-        photo.setBitmap(null);
-        photos.add(nowPos, photo);
+        PhotoTag pt = photoTags.get(nowPos);
+        String orgName = orgPT.photoName;
+        String tgtName = orgName.substring(0,orgName.length()-4)+"R.jpg";
+        pt.photoName = tgtName;
+        photoDao.delete(pt);
+        utils.createPhotoFile(fullFolder, orgName, tgtName, bitmap, "1");
+        pt.orient = "1";
+        pt.setChecked(false);
+        pt.photoName = tgtName;
+        pt.sumNailMap = null;
+        photoTags.add(nowPos, orgPT);
         photoAdapter.notifyItemInserted(nowPos);
+        photoDao.insert(orgPT);
+        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File (fullFolder, tgtName))));
         finish();
     }
 
@@ -283,7 +280,7 @@ public class TagWithPlace extends AppCompatActivity {
     private void getPlaceByLatLng() {
         placeInfos = new ArrayList<>();
         nowDownLoading = true;
-        ImageView iVPlace = findViewById(R.id.getLocation);
+        ImageView iVPlace = findViewById(R.id.queryLocs);
         iVPlace.setAlpha(0.2f);
         EditText et = findViewById(R.id.placeAddress);
         String placeName = et.getText().toString();
@@ -313,7 +310,7 @@ public class TagWithPlace extends AppCompatActivity {
         }
         maker = exif.getAttribute(ExifInterface.TAG_MAKE);
         model = exif.getAttribute(ExifInterface.TAG_MODEL);
-        orientation = Integer.parseInt(exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+        orient = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
         longitude = LatLngConv.DMS2GPS(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE),
                 exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
         latitude = LatLngConv.DMS2GPS(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE),
@@ -334,8 +331,8 @@ public class TagWithPlace extends AppCompatActivity {
 
     private String buildLongInfo() {
 
-        return "Directory : "+longFolder+"\nFile Name : "+fileFullName.getName()+
-                "\nDevice: "+maker+" - "+model+"\nOrientation: "+orientation+
+        return "Directory : "+ fullFolder +"\nFile Name : "+fileFullName.getName()+
+                "\nDevice: "+maker+" - "+model+"\nOrientation: "+ orient +
                 "\nLocation: "+latitude+", "+longitude+", "+altitude+
                 "\nDate Time: "+dateTimeFileName+
                 "\nSize: "+bitmap.getWidth()+" x "+bitmap.getHeight();
@@ -356,8 +353,7 @@ public class TagWithPlace extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         EditText etPlace = findViewById(R.id.placeAddress);
-        Photo photo = photos.get(nowPos);
-        File orgFileName, tgtFileName;
+        orgPT = photoTags.get(nowPos);
 
         if (item.getItemId() == R.id.copyText) {
             copyPasteText = etPlace.getText().toString();
@@ -375,53 +371,46 @@ public class TagWithPlace extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.renameClock) {
-            photo.setChecked(false);
-            orgFileName = photo.getFullFileName();
-            String newName = orgFileName.toString().replace(photo.getShortName(),"");
+            orgPT.setChecked(false);
+            String orgName = orgPT.getPhotoName();
+            File tgtFile;
             int C = 67; // 'C'
             do {
-                tgtFileName = new File(newName, dateTimeFileName + (char)C + ".jpg");
-                if (!tgtFileName.exists())
+                tgtFile = new File(orgName, dateTimeFileName + (char)C + ".jpg");
+                if (!tgtFile.exists())
                     break;
                 C++;
             } while (C < 84);
-            orgFileName.renameTo(tgtFileName);
-            photo.setFullFileName(tgtFileName);
-            photos.set(nowPos, photo);
-            photoAdapter.notifyItemChanged(nowPos, photo);
+
+            new File (orgPT.getFullFolder(), orgName).renameTo(tgtFile);
+            orgPT.photoName = dateTimeFileName + (char)C + ".jpg";
+            photoTags.set(nowPos, orgPT);
+            photoAdapter.notifyItemChanged(nowPos, orgPT);
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    void deleteOnConfirm(int position) {
-        final int pos = position;
-        final Photo photo = photos.get(position);
+    void deleteOnConfirm(int pos) {
+        final PhotoTag photoTag = photoTags.get(pos);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setTitle("Delete photo ?");
-        builder.setMessage(photo.getShortName());
+        builder.setTitle("Delete photoTag ?");
+        builder.setMessage(photoTag.photoName);
         builder.setPositiveButton("Yes",
                 (dialog, which) -> {
-                    File file = photo.getFullFileName();
+                    File file = new File (photoTag.fullFolder, photoTag.photoName);
                     if (file.delete()) {
-//                        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
                         MediaScannerConnection.scanFile(mContext, new String[]{file.toString()}, null, null);
-                        removeItemView(pos);
+                        photoDao.delete(orgPT);
+                        photoTags.remove(pos);
+                        photoAdapter.notifyItemRemoved(nowPos);
                     }
                 })
                 .setNegativeButton("No",
                 (dialog, which) -> {
                 });
         MainActivity.showPopup(builder);
-    }
-
-    void removeItemView(int position) {
-        photos.remove(position);
-        photoAdapter.notifyItemRemoved(position);
-        photoAdapter.notifyItemRangeChanged(position, photos.size());
-        photoAdapter.notifyItemChanged(position);
-        SystemClock.sleep(100);
     }
 
     @Override

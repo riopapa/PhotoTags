@@ -21,7 +21,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/undo"
+        android:id="@+id/undo_select"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginBottom="40dp"

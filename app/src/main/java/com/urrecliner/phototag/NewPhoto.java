@@ -11,31 +11,34 @@ import static com.urrecliner.phototag.Vars.buildBitMap;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.nowPlace;
+import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.utils;
 
-class TagOnePhoto {
+class NewPhoto {
 
-    static File insertGeoInfo(Photo photo) {
+    // create new photo file and insert to dao
 
-        File imgFile = photo.getFullFileName();
-        long timeStamp = utils.getFileDate(imgFile);
-        Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        int orientation = photo.getOrientation();
-        if (orientation != 1) {
+    static String add(PhotoTag pT) {
+
+        File orgFile = new File(pT.fullFolder, pT.photoName);
+        long timeStamp = utils.getFileDate(orgFile);
+        Bitmap bitmap = BitmapFactory.decodeFile(orgFile.getAbsolutePath());
+        String orient = pT.getOrient();
+        if (orient.equals("1")) {
             Matrix matrix = new Matrix();
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
             int degree = 0;
-            if (orientation == 6)
+            if (orient.equals("6"))
                 degree = 90;
-            else if (orientation == 8)
+            else if (orient.equals("8"))
                 degree = -90;
-            else if (orientation == 3)
+            else if (orient.equals("3"))
                 degree = 180;
             matrix.postRotate(degree);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, false);
         }
-        buildBitMap.init(mActivity, mContext, orientation);
+        buildBitMap.init(mActivity, mContext, orient);
         String sFood = " ", sPlace = " ", sAddress = " ";
         if (nowPlace != null) {
             String [] s = nowPlace.split("\n");
@@ -47,17 +50,19 @@ class TagOnePhoto {
                 sAddress = s[0];
         }
         bitmap = buildBitMap.markDateLocSignature(bitmap, timeStamp, sFood, sPlace, sAddress);
-        String fileName = imgFile.toString();
-        String outName = fileName.substring(0, fileName.length() - 4) + "_";
+        String orgName = pT.photoName;
+        String tgtName = orgName.substring(0, orgName.length() - 4) + "_";
 
         if (sFood.equals(" "))
-            outName += sPlace;
+            tgtName += sPlace;
         else {
-            outName += sPlace+"("+sFood+")";
+            tgtName += sPlace+"("+sFood+")";
         }
-        outName += SUFFIX_JPG;
-        utils.makeBitmapFile(imgFile, outName, bitmap, 1);
-        return new File(outName);
+        tgtName += SUFFIX_JPG;
+        utils.createPhotoFile(pT.fullFolder, orgName, tgtName, bitmap, "1");
+        pT.photoName = tgtName;
+        photoDao.insert(pT);
+        return tgtName;
     }
 
 }

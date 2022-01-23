@@ -4,54 +4,60 @@ import android.database.Cursor;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import static com.urrecliner.phototag.Vars.databaseIO;
+import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.photoDao;
 
 class SqueezeDB {
 
-    private static int deleteCount = 0;
-    private static Cursor cursor = null;
-    private static boolean isCanceled;
+    private static int deleteCount;
+    private List<PhotoTag> tags;
+    private int loopCnt;
+    Timer timer = null;
 
+    void getAll() {
+        tags = photoDao.getAllPhotos();
+    }
     void run() {
 
-
-        cursor = databaseIO.retrieveAll();
-        if (cursor == null || cursor.getCount() == 0)
-            return;
-        cursor.moveToFirst();
         deleteCount = 0;
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.postDelayed(() -> {
-            int interval = 100;
-            int maxTime = cursor.getCount() * interval;
-            CountDownTimer countDownTimer = new CountDownTimer(maxTime, interval) {
-                public void onTick(long millisUntilFinished) {
-                    if (!isCanceled) {
-                        File fullFileName = new File(cursor.getString(1));
-                        if (!fullFileName.exists()) {
-                            databaseIO.delete(fullFileName);
-                            deleteCount++;
-                        }
-                        if (!cursor.moveToNext())
-                            isCanceled = true;
+        if (tags.size() == 0)
+            return;
+        loopCnt = 0;
+        timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (tags.size() > 0) {
+                    PhotoTag pt = tags.get(0);
+                    tags.remove(0);
+                    File file = new File(pt.fullFolder, pt.photoName);
+                    if (!file.exists()) {
+                        photoDao.delete(pt);
+                        Log.w("Delete " + deleteCount++, file.toString());
                     }
+                } else {
+                    timer.cancel();
                 }
-                public void onFinish() {
-                    if (deleteCount > 0)
-                        Toast.makeText(mContext,"Total "+deleteCount+" removed photos squeezed",Toast.LENGTH_LONG).show();
-                }
-            };
-            countDownTimer.start();
-        }, 1);
+            }
+        };
+        timer.schedule(timerTask, 0, 100);
     }
+
 
     void cancel() {
-        isCanceled = true;
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
-
 }

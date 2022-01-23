@@ -3,18 +3,16 @@ package com.urrecliner.phototag;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import java.io.File;
-
-import static com.urrecliner.phototag.Vars.databaseIO;
+import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mContext;
-import static com.urrecliner.phototag.Vars.tagOnePhoto;
+import static com.urrecliner.phototag.Vars.photoDao;
+import static com.urrecliner.phototag.Vars.photoTags;
+import static com.urrecliner.phototag.Vars.newPhoto;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.photoAdapter;
-import static com.urrecliner.phototag.Vars.photos;
 import static com.urrecliner.phototag.Vars.utils;
 
 class TagMulti {
-
 
     void tag() {
         try {
@@ -42,18 +40,16 @@ class TagMulti {
         @Override
         protected String doInBackground(String... inputParams) {
 
-            File fileHa;
-            for (int pos = photos.size() - 1; pos >= 0; ) {  // should be last to first
-                Photo photo = photos.get(pos);
-                File fileOrg = photo.getFullFileName();
-                if (photo.isChecked()) {
+            for (int pos = photoTags.size() - 1; pos >= 0; ) {  // should be last to first
+                PhotoTag photoTag = photoTags.get(pos);
+                if (photoTag.isChecked()) {
                     makeCount++;
-                    photo.setChecked(false);
-                    photos.set(pos, photo);
+                    photoTag.setChecked(false);
+                    photoTags.set(pos, photoTag);
                     publishProgress(PROGRESS_CHECKUP,""+pos);
-                    msg.append("\n").append(fileOrg.getName());
-                    fileHa = tagOnePhoto.insertGeoInfo(photo);
-                    publishProgress(PROGRESS_UPDATE + makeCount + ") "+fileOrg.getName(), "" + pos, fileHa.toString());
+                    msg.append("\n").append(photoTag.photoName);
+                    String outName = newPhoto.add(photoTag);
+                    publishProgress(PROGRESS_UPDATE + makeCount + ") "+photoTag.photoName, "" + pos, outName);
                 } else
                     pos--;
             }
@@ -61,10 +57,8 @@ class TagMulti {
         }
 
         void removeItemView(int position) {
-            photos.remove(position);
+            photoTags.remove(position);
             photoAdapter.notifyItemRemoved(position);
-            photoAdapter.notifyItemRangeChanged(position, photos.size()); // 지워진 만큼 다시 채워넣기.
-            photoAdapter.notifyItemChanged(position);
         }
 
         @Override
@@ -77,16 +71,17 @@ class TagMulti {
                     break;
                 case PROGRESS_UPDATE:
                     String newName = values[2];
-                    File newFile = new File(newName);
-                    Photo newPhoto = new Photo(newFile);
-                    newPhoto.setBitmap(newPhoto.getBitmap());
-                    newPhoto.setOrientation(1);
-                    if (photos.get(pos-1).getFullFileName().toString().equals(newName)) {
+                    PhotoTag newPhotoTag = new PhotoTag();
+                    newPhotoTag.fullFolder = fullFolder;
+                    newPhotoTag.photoName = newName;
+                    newPhotoTag.setSumNailMap(newPhotoTag.getSumNailMap());
+                    newPhotoTag.setOrient("1");
+                    if (photoTags.get(pos-1).photoName.equals(newName)) {
                         pos--;
                         removeItemView(pos);
-                        databaseIO.delete(newFile);
+                        photoDao.delete(newPhotoTag);
                     }
-                    photos.add(pos, newPhoto);
+                    photoTags.add(pos, newPhotoTag);
                     photoAdapter.notifyItemInserted(pos);
                     break;
                 default:

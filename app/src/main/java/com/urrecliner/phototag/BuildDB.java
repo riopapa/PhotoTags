@@ -1,11 +1,10 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.buildBitMap;
-import static com.urrecliner.phototag.Vars.buildDB;
-import static com.urrecliner.phototag.Vars.databaseIO;
 import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.photoDao;
+import static com.urrecliner.phototag.Vars.photoTags;
 import static com.urrecliner.phototag.Vars.photoView;
-import static com.urrecliner.phototag.Vars.photos;
 import static com.urrecliner.phototag.Vars.squeezeDB;
 
 import android.graphics.Color;
@@ -43,14 +42,10 @@ class BuildDB {
 
     static class buildSumNailDB extends AsyncTask<String, String, String> {
 
-        int count, totCount;
-
         @Override
         protected void onPreExecute() {
-            count = 0;
-            totCount = photos.size();
             photoView.setBackgroundColor(Color.CYAN);
-            String s = "Building SumNails for "+totCount+" photos";
+            String s = "Building SumNails for "+photoTags.size()+" photos";
             snackBar = Snackbar.make(mainLayout, s, Snackbar.LENGTH_INDEFINITE);
             snackBar.setAction("Hide", v -> {
                 snackBar.dismiss();
@@ -64,20 +59,19 @@ class BuildDB {
         @Override
         protected String doInBackground(String... inputParams) {
 
-            for (int pos = 0; pos < photos.size(); pos++) {
+            for (int pos = 0; pos < photoTags.size(); pos++) {
                 if (isCanceled)
                     break;
                 try {
-                    Photo photo = photos.get(pos);
-                    if (photo.getBitmap() == null) {
-                        photo = buildDB.getPhotoWithMap(photo);
-                        photos.set(pos, photo);
+                    PhotoTag photoTag = photoTags.get(pos);
+                    if (photoTag.getSumNailMap() == null) {
+                        photoTag = getPhotoWithMap(photoTag);
+                        photoTags.set(pos, photoTag);
                         publishProgress(SAY_COUNT);
                     }
                 } catch (Exception e) {
                     break;
                 }
-                count++;
             }
             return "done";
         }
@@ -94,13 +88,19 @@ class BuildDB {
         }
     }
 
-    Photo getPhotoWithMap(Photo photoIn) {
+    static PhotoTag getPhotoWithMap(PhotoTag photoIn) {
 
-        Photo photo = databaseIO.retrievePhoto(photoIn);
-        if (photo.getBitmap() == null) {
-            photo = buildBitMap.makeSumNail(photoIn);
-            return databaseIO.retrievePhoto(photo);
+        PhotoTag photoOut = photoDao.getByPhotoName(photoIn.getFullFolder(), photoIn.getPhotoName());
+        if (photoOut == null) {
+            photoOut = buildBitMap.updateSumNail(photoIn);
+            photoDao.insert(photoOut);
+            return photoOut;
         }
-        return photo;
+        if (photoOut.getSumNailMap() == null) {
+            photoOut = buildBitMap.updateSumNail(photoIn);
+            photoDao.update(photoOut);
+            return photoOut;
+        }
+        return photoOut;
     }
 }

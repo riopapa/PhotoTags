@@ -2,27 +2,28 @@ package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.buildBitMap;
 import static com.urrecliner.phototag.Vars.buildDB;
-import static com.urrecliner.phototag.Vars.databaseIO;
 import static com.urrecliner.phototag.Vars.dirNotReady;
-import static com.urrecliner.phototag.Vars.longFolder;
+import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
 import static com.urrecliner.phototag.Vars.makeDirFolder;
 import static com.urrecliner.phototag.Vars.markTextInColor;
 import static com.urrecliner.phototag.Vars.markTextOutColor;
-import static com.urrecliner.phototag.Vars.tagOnePhoto;
 import static com.urrecliner.phototag.Vars.multiMode;
 import static com.urrecliner.phototag.Vars.photoAdapter;
+import static com.urrecliner.phototag.Vars.photoDB;
+import static com.urrecliner.phototag.Vars.photoDao;
+import static com.urrecliner.phototag.Vars.photoTags;
 import static com.urrecliner.phototag.Vars.photoView;
-import static com.urrecliner.phototag.Vars.photos;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.sharedSpan;
-import static com.urrecliner.phototag.Vars.shortFolder;
+import static com.urrecliner.phototag.Vars.short2Folder;
 import static com.urrecliner.phototag.Vars.signatureMap;
 import static com.urrecliner.phototag.Vars.sizeX;
 import static com.urrecliner.phototag.Vars.spanWidth;
 import static com.urrecliner.phototag.Vars.squeezeDB;
+import static com.urrecliner.phototag.Vars.newPhoto;
 import static com.urrecliner.phototag.Vars.utils;
 
 import android.app.Dialog;
@@ -30,12 +31,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -45,11 +48,13 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -73,25 +78,31 @@ public class MainActivity extends AppCompatActivity {
         askPermission();
         squeezeDB = new SqueezeDB();
         buildDB = new BuildDB();
-        tagOnePhoto = new TagOnePhoto();
+        newPhoto = new NewPhoto();
         buildBitMap = new BuildBitMap();
-        if (databaseIO == null) databaseIO = new DatabaseIO();
+
+        photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
+                .fallbackToDestructiveMigration()   // scima changeable
+                .allowMainThreadQueries()           // main thread 에서 IO
+                .build();
+
+        photoDao = photoDB.photoDao();
+
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         sizeX = size.x;
-        makeDirFolder = new MakeDirFolder();
 
-        photos = new ArrayList<>();
+        photoTags = new ArrayList<>();
         utils.getPreference();
-        shortFolder = sharedPref.getString("shortFolder", "DCIM/Camera");
-        longFolder = sharedPref.getString("longFolder", new File(Environment.getExternalStorageDirectory(), shortFolder).toString());
+        fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
+        utils.setShortFolderNames(fullFolder);
         markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
         markTextOutColor = sharedPref.getInt("markTextOutColor", ContextCompat.getColor(mContext, R.color.markOutColor));
         signatureMap = buildBitMap.buildSignatureMap();
-        ArrayList<File> photoFiles = utils.getFilteredFileList(longFolder);
+        ArrayList<File> photoFiles = utils.getFilteredFileList(fullFolder);
         if (photoFiles.size() == 0) {
-            Toast.makeText(getApplicationContext(), "No jpg files in " + shortFolder + " folder\nSelect Folder", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "No jpg files in " + short2Folder + " folder\nSelect Folder", Toast.LENGTH_LONG).show();
 //            finish();
 //            Intent intent = new Intent(this, DirectoryActivity.class);
 //            startActivity(intent);
@@ -103,14 +114,23 @@ public class MainActivity extends AppCompatActivity {
 
         prepareCards();
         for (File photoFile : photoFiles) {
-            photos.add(new Photo(photoFile));
+            PhotoTag photoTag = new PhotoTag();
+            photoTag.fullFolder = fullFolder;
+            photoTag.photoName = photoFile.getName();
+            photoTag.orient = "x";
+            photoTags.add(photoTag);
         }
 
+        utils.showFolder(this.getSupportActionBar());
         photoAdapter = new PhotoAdapter();
         photoView.setAdapter(photoAdapter);
-        utils.showFolder(this.getSupportActionBar());
-        final View view = findViewById(R.id.main_layout);
-        view.post(() -> buildDB.fillUp(view));
+        makeDirFolder = new MakeDirFolder();
+        squeezeDB.getAll();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         if (dirNotReady) {
             new Timer().schedule(new TimerTask() {
@@ -125,25 +145,26 @@ public class MainActivity extends AppCompatActivity {
             }, 1000);
         }
         utils.deleteOldLogFiles();
-        FloatingActionButton fab = findViewById(R.id.undo);
-        fab.setVisibility(View.INVISIBLE);
-        fab.setOnClickListener(v -> {
+        FloatingActionButton fabUndo = findViewById(R.id.undo_select);
+        fabUndo.setVisibility(View.INVISIBLE);
+        fabUndo.setOnClickListener(v -> {
             multiMode = false;
-            int totCount = photos.size();
+            int totCount = photoTags.size();
             for (int i = 0; i < totCount; i++) {
-                Photo photo = photos.get(i);
-                if (photo.isChecked()) {
-                    photo.setChecked(false);
-                    photos.set(i, photo);
-                    photoAdapter.notifyItemChanged(i, photo);
+                PhotoTag photoTag = photoTags.get(i);
+                if (photoTag.isChecked()) {
+                    photoTag.setChecked(false);
+                    photoTags.set(i, photoTag);
+                    photoAdapter.notifyItemChanged(i, photoTag);
                 }
             }
-            photoAdapter.notifyDataSetChanged();
-            fab.setVisibility(View.INVISIBLE);
+//            photoAdapter.notifyDataSetChanged();
+            fabUndo.setVisibility(View.INVISIBLE);
             MenuItem item = mainMenu.findItem(R.id.action_Delete);
             item.setVisible(false);
 
         });
+        buildDB.fillUp(findViewById(R.id.main_layout));
     }
 
     static void prepareCards() {
@@ -185,8 +206,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.action_Delete) {
-            final ArrayList<String> toDeleteList;
-            toDeleteList = build_DeletePhoto();
+            final ArrayList<String> toDeleteList = build_DeletePhoto();
             if (toDeleteList.size()> 0) {
                 StringBuilder msg = new StringBuilder();
                 for (String s : toDeleteList) msg.append("\n").append(s);
@@ -220,9 +240,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> build_DeletePhoto() {
         ArrayList<String> arrayList = new ArrayList<>();
 
-        for (Photo photo: photos) {
-            if (photo.isChecked())
-                arrayList.add(photo.getShortName());
+        for (PhotoTag photoTag: photoTags) {
+            if (photoTag.isChecked())
+                arrayList.add(photoTag.getPhotoName());
         }
         return arrayList;
     }
@@ -248,9 +268,10 @@ public class MainActivity extends AppCompatActivity {
         backKeyPressedTime = System.currentTimeMillis();
     }
 
+
     // ↓ ↓ ↓ P E R M I S S I O N   RELATED /////// ↓ ↓ ↓ ↓  BEST CASE 20/09/27 with no lambda
     private final static int ALL_PERMISSIONS_RESULT = 101;
-    ArrayList permissionsToRequest;
+    ArrayList <String> permissionsToRequest;
     ArrayList<String> permissionsRejected = new ArrayList<>();
     String [] permissions;
 
@@ -270,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList findUnAskedPermissions() {
+    private ArrayList<String> findUnAskedPermissions() {
         ArrayList <String> result = new ArrayList<>();
         for (String perm : permissions) if (hasPermission(perm)) result.add(perm);
         return result;

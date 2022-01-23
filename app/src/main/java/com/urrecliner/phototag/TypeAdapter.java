@@ -18,14 +18,10 @@ import static com.urrecliner.phototag.Vars.typeNames;
 import static com.urrecliner.phototag.Vars.typeNumber;
 import static com.urrecliner.phototag.Vars.placeType;
 import static com.urrecliner.phototag.Vars.typeAdapter;
-import static com.urrecliner.phototag.Vars.utils;
 
 public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
 
-    private  ArrayList<TypeInfo> mData = null;
-
     public TypeAdapter(ArrayList<TypeInfo> typeInfos) {
-        mData = typeInfos;
     }
 
     static class TypeHolder extends RecyclerView.ViewHolder {
@@ -40,10 +36,12 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
             this.tvName = itemView.findViewById(R.id.typeName);
             this.ivIcon = itemView.findViewById(R.id.typeIcon);
             this.viewLine.setOnClickListener(view1 -> {
-                typeNumber = getAdapterPosition();
+                int oldType = typeNumber;
+                typeNumber = getAbsoluteAdapterPosition();
+                typeAdapter.notifyItemChanged(oldType);
                 placeType = typeNames[typeNumber];
-                typeAdapter.notifyDataSetChanged();
-                ImageView iv = placeActivity.findViewById(R.id.getLocation);
+                typeAdapter.notifyItemChanged(typeNumber);
+                ImageView iv = placeActivity.findViewById(R.id.queryLocs);
                 iv.setImageResource(typeIcons[typeNumber]);
 //                iv.setImageBitmap(utils.maskedIcon(typeIcons[typeNumber]));
             });

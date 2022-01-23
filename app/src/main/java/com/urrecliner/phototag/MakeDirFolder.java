@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,12 +19,15 @@ import static com.urrecliner.phototag.Vars.dirFolders;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.sizeX;
 import static com.urrecliner.phototag.Vars.utils;
+import static com.urrecliner.phototag.Vars.FolderPhoto;
 
 public class MakeDirFolder {
 
     MakeDirFolder() {
-        dirFolders = getPicFolders();
-        new dirTask().execute("");
+        new Thread(() -> {
+            dirFolders = getPicFolders();
+            new dirTask().execute("");
+        }).start();
     }
 
     class dirTask extends AsyncTask<String, String, String> {
@@ -98,7 +102,6 @@ public class MakeDirFolder {
                     picPaths.add(longFolder);
                     DirectoryFolder df = new DirectoryFolder();
                     df.setLongFolder(longFolder);
-                    df.setShortFolder(new File(longFolder).getName());
                     picFolders.add(df);
                 }
             }while(cursor.moveToNext());
@@ -107,12 +110,13 @@ public class MakeDirFolder {
             utils.log("1",e.toString());
             e.printStackTrace();
         }
+
         Collections.sort(picFolders, new Comparator<DirectoryFolder>() {
             @Override
             public int compare(DirectoryFolder lhs, DirectoryFolder rhs) {
-                String lStr = utils.getUpperFolder(lhs.getLongFolder(), lhs.getShortFolder()) + " / " + lhs.getShortFolder();
-                String rStr = utils.getUpperFolder(rhs.getLongFolder(), rhs.getShortFolder()) + " / " + rhs.getShortFolder();
-                return lStr.compareTo(rStr);
+//                String lStr = utils.getUpperFolder(lhs.getLongFolder(), lhs.getShortFolder()) + " / " + lhs.getShortFolder();
+//                String rStr = utils.getUpperFolder(rhs.getLongFolder(), rhs.getShortFolder()) + " / " + rhs.getShortFolder();
+                return lhs.getLongFolder().compareTo(rhs.getLongFolder());
             }
         });
         return picFolders;

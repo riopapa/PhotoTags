@@ -28,16 +28,21 @@ public class Vars {
     static Bitmap signatureMap;
     static RecyclerView photoView;
 
+    static PhotoDataBase photoDB;
+    static PhotoDao photoDao;
+    static List<PhotoTag> photoTags = null;
+
     static Utils utils;
     static SqueezeDB squeezeDB;
     static BuildDB buildDB;
     static MakeDirFolder makeDirFolder;
-    static TagOnePhoto tagOnePhoto;
+    static NewPhoto newPhoto;
     static BuildBitMap buildBitMap;
     static ColorDraw colorDraw;
 
-    static String shortFolder = null;
-    static String longFolder = null;
+    static String fullFolder = null;
+    static String short1Folder = null;
+    static String short2Folder = null;
     static int nowPos;
     static String nowPlace, nowAddress;
     static int spanWidth, sizeX;
@@ -46,12 +51,11 @@ public class Vars {
     static boolean dirNotReady = true;
 
     static boolean multiMode = false;
-    static List<Photo> photos = null;
+//    static List<Photo> photos = null;
     static ArrayList<DirectoryFolder> dirFolders = null;
 
     static Menu mainMenu;
 
-    static DatabaseIO databaseIO = null;
     static final String SUFFIX_JPG = "_ha.jpg";
 
     static ImageView colorPlate;
@@ -76,6 +80,11 @@ public class Vars {
     /* --- place select related variables --- */
     public static boolean nowDownLoading = false;
     public static ArrayList<PlaceInfo> placeInfos = null;
+
+    public static class FolderPhoto {
+        String fileFolder, fileName ;
+    }
+
 
     static Activity selectActivity;
     static String [] iconNames = { "question",

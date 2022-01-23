@@ -20,8 +20,8 @@ public class DirectoryActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        Intent intent = new Intent(mContext, MainActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(mContext, MainActivity.class);
+//        startActivity(intent);
     }
 
     @Override
@@ -37,8 +37,6 @@ public class DirectoryActivity extends AppCompatActivity {
 
         directoryAdapter = new DirectoryAdapter();
         dirView.setAdapter(directoryAdapter);
-//        if (makeDirFolder != null)
-//            makeDirFolder.fill();
     }
 
 }

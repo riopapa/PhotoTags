@@ -1,9 +1,20 @@
 package com.urrecliner.phototag;
 
+import static com.urrecliner.phototag.Vars.SUFFIX_JPG;
+import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.fabUndo;
+import static com.urrecliner.phototag.Vars.mActivity;
+import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.mainMenu;
+import static com.urrecliner.phototag.Vars.multiMode;
+import static com.urrecliner.phototag.Vars.nowPos;
+import static com.urrecliner.phototag.Vars.photoAdapter;
+import static com.urrecliner.phototag.Vars.photoTags;
+import static com.urrecliner.phototag.Vars.spanWidth;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,18 +23,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import static com.urrecliner.phototag.Vars.SUFFIX_JPG;
-import static com.urrecliner.phototag.Vars.buildBitMap;
-import static com.urrecliner.phototag.Vars.buildDB;
-import static com.urrecliner.phototag.Vars.fabUndo;
-import static com.urrecliner.phototag.Vars.mContext;
-import static com.urrecliner.phototag.Vars.mActivity;
-import static com.urrecliner.phototag.Vars.mainMenu;
-import static com.urrecliner.phototag.Vars.multiMode;
-import static com.urrecliner.phototag.Vars.nowPos;
-import static com.urrecliner.phototag.Vars.photoAdapter;
-import static com.urrecliner.phototag.Vars.photos;
-import static com.urrecliner.phototag.Vars.spanWidth;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
@@ -32,7 +33,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return photos.size();
+        return photoTags.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,48 +71,39 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
                     if (multiMode)
                         loadTagActivity();
                     else
-                        toggleCheckBox(getAdapterPosition());
+                        toggleCheckBox(getAbsoluteAdapterPosition());
                     return true;
                 }
             });
-//            cbCheck = itemView.findViewById(R.id.checkBox);
-//            cbCheck.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    if (multiMode)
-//                        toggleCheckBox(getAdapterPosition());
-//                }
-//            });
         }
 
         private void loadTagActivity() {
             nowPos = getAbsoluteAdapterPosition();
-            Photo photo = photos.get(nowPos);
-            Bitmap photoMap = photo.getBitmap().copy(Bitmap.Config.ARGB_8888, false);
-            boolean checked = !photo.isChecked();
-            iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
+//            PhotoTag photoTag = photoTags.get(nowPos);
+//            Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.ARGB_8888, false);
+//            boolean checked = !photoTag.isChecked();
+//            iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
             Intent intent = new Intent(mContext, TagWithPlace.class);
             mActivity.startActivity(intent);
         }
 
         private void toggleCheckBox(int position) {
 
-            fabUndo = mActivity.findViewById(R.id.undo);
+            fabUndo = mActivity.findViewById(R.id.undo_select);
             fabUndo.setVisibility(View.VISIBLE);
-            Photo photo = photos.get(position);
-            String shortName = photo.getShortName();
-            Bitmap photoMap = photo.getBitmap().copy(Bitmap.Config.ARGB_8888, false);
-            boolean checked = !photo.isChecked();
+            PhotoTag photoTag = photoTags.get(position);
+            String shortName = photoTag.getPhotoName();
+            Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.ARGB_8888, false);
+            boolean checked = !photoTag.isChecked();
             iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
             tVInfo.setTextColor((shortName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
             tVInfo.setText(shortName);
-            photo.setChecked(checked);
-            photos.set(position, photo);
-//            cbCheck.setChecked(checked);
+            photoTag.setChecked(checked);
+            photoTags.set(position, photoTag);
             if (!multiMode) {
                 multiMode = true;
                 int start = position - 12; if (start < 0) start = 0;
-                int finish = position + 12; if (finish > photos.size()) finish = photos.size();
+                int finish = position + 12; if (finish > photoTags.size()) finish = photoTags.size();
                 for (int pos = start; pos < finish; pos++)
                     photoAdapter.notifyItemChanged(pos);
             }
@@ -120,30 +112,34 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         }
     }
 
+    @NonNull
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.photo_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
-        Photo photo = photos.get(position);
-        if (photo.getOrientation() == 99 || photo.getBitmap() == null) {
-            photo = buildDB.getPhotoWithMap(photo);
-            photos.set(position, photo);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        PhotoTag nowPT = photoTags.get(position);
+        Bitmap photoMap = nowPT.getSumNailMap();
+        if (photoMap == null) {
+            nowPT = BuildDB.getPhotoWithMap(nowPT);
+            photoMap = nowPT.getSumNailMap();
         }
-        String shortName = photo.getShortName();
-        boolean checked = photo.isChecked();
-        Bitmap photoMap = (checked) ? photo.getBitmap().copy(Bitmap.Config.RGB_565, false):photo.getBitmap();
+
+        String photoName = nowPT.getPhotoName();
+        boolean checked = nowPT.isChecked();
+        if (checked)
+            photoMap = buildBitMap.makeChecked(photoMap.copy(Bitmap.Config.RGB_565, false));
         boolean landscape = photoMap.getWidth() > photoMap.getHeight();
         int width = (landscape) ? spanWidth:spanWidth * 6 / 10;
         int height = width*photoMap.getHeight()/photoMap.getWidth();
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.iVImage.getLayoutParams();
         params.width = width; params.height = height;
         holder.iVImage.setLayoutParams(params);
-        holder.iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
-        holder.tVInfo.setTextColor((shortName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
-        holder.tVInfo.setText(shortName);
+        holder.iVImage.setImageBitmap(photoMap);
+        holder.tVInfo.setTextColor((photoName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
+        holder.tVInfo.setText(photoName);
     }
 }
 

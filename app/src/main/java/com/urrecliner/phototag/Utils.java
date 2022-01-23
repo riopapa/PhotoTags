@@ -1,5 +1,19 @@
 package com.urrecliner.phototag;
 
+import static com.urrecliner.phototag.Vars.FolderPhoto;
+import static com.urrecliner.phototag.Vars.copyPasteGPS;
+import static com.urrecliner.phototag.Vars.mActivity;
+import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.sharedAlpha;
+import static com.urrecliner.phototag.Vars.sharedAutoLoad;
+import static com.urrecliner.phototag.Vars.sharedPref;
+import static com.urrecliner.phototag.Vars.sharedRadius;
+import static com.urrecliner.phototag.Vars.sharedSort;
+import static com.urrecliner.phototag.Vars.sharedSpan;
+import static com.urrecliner.phototag.Vars.short1Folder;
+import static com.urrecliner.phototag.Vars.short2Folder;
+import static com.urrecliner.phototag.Vars.utils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,23 +21,18 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.net.Uri;
 import android.os.Environment;
-import androidx.exifinterface.media.ExifInterface;
-import androidx.appcompat.app.ActionBar;
-
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.exifinterface.media.ExifInterface;
+
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -37,20 +46,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.urrecliner.phototag.Vars.copyPasteGPS;
-import static com.urrecliner.phototag.Vars.longFolder;
-import static com.urrecliner.phototag.Vars.mContext;
-import static com.urrecliner.phototag.Vars.mActivity;
-import static com.urrecliner.phototag.Vars.mainMenu;
-import static com.urrecliner.phototag.Vars.sharedAlpha;
-import static com.urrecliner.phototag.Vars.sharedAutoLoad;
-import static com.urrecliner.phototag.Vars.sharedPref;
-import static com.urrecliner.phototag.Vars.sharedRadius;
-import static com.urrecliner.phototag.Vars.sharedSort;
-import static com.urrecliner.phototag.Vars.shortFolder;
-import static com.urrecliner.phototag.Vars.sharedSpan;
-import static com.urrecliner.phototag.Vars.utils;
 
 class Utils {
 
@@ -195,12 +190,12 @@ class Utils {
         }
     }
 
-    void makeBitmapFile(File imgFile, String outName, Bitmap bitmap, int orientation) {
-        File file = new File(outName);
+    void createPhotoFile(String folderName, String inpName, String outName, Bitmap bitmap, String orientation) {
+        File file = new File(folderName, outName);
         if (file.exists())
             file.delete();
         bitMap2File(bitmap, file);
-        copyExif(imgFile, file, orientation);
+        copyExif(folderName, inpName, outName, orientation);
     }
 
     private void bitMap2File(Bitmap bitmap, File file) {
@@ -218,12 +213,14 @@ class Utils {
 
     static final private SimpleDateFormat sdfHourMinSec = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.ENGLISH);
 
-    void copyExif(File fileOrg, File fileNew, int orientation) {
+    void copyExif(String folderName, String inpName, String outName, String orientation) {
         ExifInterface exifOrg, exifNew;
+        File inpFile = new File(folderName, inpName);
+        File outFile = new File(folderName, outName);
         double latitude = 0, longitude = 0, altitude = 0;
         try {
-            exifOrg = new ExifInterface(fileOrg.getAbsolutePath());
-            exifNew = new ExifInterface(fileNew.getAbsolutePath());
+            exifOrg = new ExifInterface(inpFile.getAbsolutePath());
+            exifNew = new ExifInterface(outFile.getAbsolutePath());
 
             if (exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE) == null) {
                 if (copyPasteGPS != null) {
@@ -244,7 +241,7 @@ class Utils {
 
             exifNew.setAttribute(ExifInterface.TAG_MAKE, exifOrg.getAttribute(ExifInterface.TAG_MAKE));
             exifNew.setAttribute(ExifInterface.TAG_MODEL, exifOrg.getAttribute(ExifInterface.TAG_MODEL));
-            exifNew.setAttribute(ExifInterface.TAG_ORIENTATION, ""+orientation);
+            exifNew.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
 
             exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE, LatLngConv.GPS2DMS(latitude));
             exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0.0d ? "S" : "N");
@@ -255,7 +252,7 @@ class Utils {
 
             String dateTime = exifOrg.getAttribute(ExifInterface.TAG_DATETIME);
             if (dateTime == null) {
-                dateTime = sdfHourMinSec.format(fileOrg.lastModified());
+                dateTime = sdfHourMinSec.format(inpFile.lastModified());
             }
             exifNew.setAttribute(ExifInterface.TAG_DATETIME, dateTime);
             exifNew.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, "by riopapa");
@@ -265,7 +262,7 @@ class Utils {
                 public void run() {
                     try {
                         Date photoDate = sdfHourMinSec.parse(finalDateTime);
-                        fileNew.setLastModified(photoDate.getTime());
+                        outFile.setLastModified(photoDate.getTime());
                     }
                     catch (Exception e){
 //                        photoDate = new Date(fileOrg.lastModified());
@@ -302,14 +299,32 @@ class Utils {
         return s.substring(s.lastIndexOf("/")+1);
     }
 
+    FolderPhoto getFolderPhoto(String fullPath) {
+        FolderPhoto folderPhoto = new FolderPhoto();
+        File file = new File (fullPath);
+        folderPhoto.fileFolder = file.getParent();
+        folderPhoto.fileName = file.getName();
+        return folderPhoto;
+    }
+    void setShortFolderNames(String folderName) {
+        String s[] = folderName.split("/");
+        int len = s.length;
+        if (len >= 2) {
+            short1Folder = s[len-2];
+            short2Folder = s[len-1];
+        } else {
+            short1Folder = "";
+            short2Folder = s[0];
+        }
+    }
+
     void showFolder (ActionBar actionBar) {
-        String title = getUpperFolder(longFolder, shortFolder);
-        if (title.equals("0")) {
-            actionBar.setTitle(shortFolder);
+        if (short1Folder.equals("0")) {
+            actionBar.setTitle(short2Folder);
         }
         else {
-            actionBar.setTitle(title);
-            actionBar.setSubtitle(shortFolder);
+            actionBar.setTitle(short1Folder);
+            actionBar.setSubtitle(short2Folder);
         }
     }
 
@@ -324,7 +339,6 @@ class Utils {
             editor.putString("span","3");
             editor.putString("alpha","180");
             editor.apply();
-            editor.commit();
         }
         sharedRadius = sharedPref.getString("radius", "200");
         sharedAutoLoad = sharedPref.getBoolean("autoLoad", false);
@@ -333,17 +347,21 @@ class Utils {
         sharedAlpha = sharedPref.getString("alpha","180");
     }
 
-    Bitmap maskedIcon(int rawId) {
+    String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos= new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
 
-        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), rawId);
-        Bitmap resultingImage=Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
-        Paint paint = new Paint();
-        Canvas canvas = new Canvas(resultingImage);
-        canvas.drawBitmap(bitmap,3,3,paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
-        canvas.drawBitmap(bitmap,0,0,paint);
-        canvas.drawBitmap(bitmap,-3,-3,paint);
-        return resultingImage;
+    Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+        } catch(Exception e) {
+            utils.log("utils", " StringToBitMap Error "+e.toString());
+            return null;
+        }
     }
 
 }

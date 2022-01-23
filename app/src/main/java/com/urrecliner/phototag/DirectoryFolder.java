@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 class DirectoryFolder {
 
     private  String longFolder;
-    private  String shortFolder;
     private int numberOfPics = 0;
     private Bitmap imageBitmap;
 
@@ -18,13 +17,6 @@ class DirectoryFolder {
     }
     void setLongFolder(String longFolder) {
         this.longFolder = longFolder;
-    }
-
-    String getShortFolder() {
-        return shortFolder;
-    }
-    void setShortFolder(String shortFolder) {
-        this.shortFolder = shortFolder;
     }
 
     int getNumberOfPics() {
