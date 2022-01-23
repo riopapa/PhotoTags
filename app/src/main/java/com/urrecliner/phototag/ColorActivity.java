@@ -261,10 +261,9 @@ public class ColorActivity extends AppCompatActivity {
         editor.putInt("markTextInColor", markTextInColor);
         editor.putInt("markTextOutColor", markTextOutColor);
         editor.apply();
-        editor.commit();
         finish();
-        Intent intent = new Intent(mContext, MainActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(mContext, MainActivity.class);
+//        startActivity(intent);
     }
 
 }

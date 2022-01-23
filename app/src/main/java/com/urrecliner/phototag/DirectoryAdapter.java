@@ -49,8 +49,9 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
                 buildDB.cancel();
                 multiMode = false;
                 dirNotReady = false;
-                Intent intent = new Intent(mContext, MainActivity.class);
-                dirActivity.startActivity(intent);
+                dirActivity.finish();
+//                Intent intent = new Intent(mContext, MainActivity.class);
+//                dirActivity.startActivity(intent);
             });
         }
     }

@@ -84,7 +84,6 @@ class BuildDB {
                 snackBar = null;
             }
             photoView.setBackgroundColor(Color.WHITE);
-            squeezeDB.run();
         }
     }
 

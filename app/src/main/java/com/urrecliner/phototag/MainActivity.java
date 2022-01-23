@@ -93,13 +93,24 @@ public class MainActivity extends AppCompatActivity {
         display.getSize(size);
         sizeX = size.x;
 
-        photoTags = new ArrayList<>();
+        signatureMap = buildBitMap.buildSignatureMap();
+        photoAdapter = new PhotoAdapter();
+        photoView.setAdapter(photoAdapter);
+        makeDirFolder = new MakeDirFolder();
+        squeezeDB.getAll();
+        squeezeDB.run();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         utils.getPreference();
         fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
-        utils.setShortFolderNames(fullFolder);
         markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
         markTextOutColor = sharedPref.getInt("markTextOutColor", ContextCompat.getColor(mContext, R.color.markOutColor));
-        signatureMap = buildBitMap.buildSignatureMap();
+
+        utils.setShortFolderNames(fullFolder);
+        photoTags = new ArrayList<>();
         ArrayList<File> photoFiles = utils.getFilteredFileList(fullFolder);
         if (photoFiles.size() == 0) {
             Toast.makeText(getApplicationContext(), "No jpg files in " + short2Folder + " folder\nSelect Folder", Toast.LENGTH_LONG).show();
@@ -122,15 +133,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         utils.showFolder(this.getSupportActionBar());
-        photoAdapter = new PhotoAdapter();
-        photoView.setAdapter(photoAdapter);
-        makeDirFolder = new MakeDirFolder();
-        squeezeDB.getAll();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         if (dirNotReady) {
             new Timer().schedule(new TimerTask() {
@@ -200,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.action_Directory) {
-            finish();
+//            finish();
             intent = new Intent(this, DirectoryActivity.class);
             startActivity(intent);
             return true;

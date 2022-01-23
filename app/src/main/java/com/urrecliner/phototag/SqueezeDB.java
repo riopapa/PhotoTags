@@ -21,7 +21,6 @@ class SqueezeDB {
 
     private static int deleteCount;
     private List<PhotoTag> tags;
-    private int loopCnt;
     Timer timer = null;
 
     void getAll() {
@@ -32,7 +31,6 @@ class SqueezeDB {
         deleteCount = 0;
         if (tags.size() == 0)
             return;
-        loopCnt = 0;
         timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override

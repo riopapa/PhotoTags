@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.urrecliner.phototag.Vars.dirFolders;
 import static com.urrecliner.phototag.Vars.mActivity;
@@ -24,10 +26,12 @@ import static com.urrecliner.phototag.Vars.FolderPhoto;
 public class MakeDirFolder {
 
     MakeDirFolder() {
-        new Thread(() -> {
-            dirFolders = getPicFolders();
-            new dirTask().execute("");
-        }).start();
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                dirFolders = getPicFolders();
+                new dirTask().execute("");
+            }
+        }, 5000);
     }
 
     class dirTask extends AsyncTask<String, String, String> {

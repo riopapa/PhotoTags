@@ -321,6 +321,7 @@ class Utils {
     void showFolder (ActionBar actionBar) {
         if (short1Folder.equals("0")) {
             actionBar.setTitle(short2Folder);
+            actionBar.setSubtitle("");
         }
         else {
             actionBar.setTitle(short1Folder);
