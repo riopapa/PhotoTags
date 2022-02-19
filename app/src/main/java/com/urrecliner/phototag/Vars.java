@@ -48,7 +48,8 @@ public class Vars {
     static int spanWidth, sizeX;
     static String copyPasteText = "";
     static String copyPasteGPS;
-    static boolean dirNotReady = true;
+    static boolean dirInfoReady = false;
+    static boolean isNewFolder = true;
 
     static boolean multiMode = false;
 //    static List<Photo> photos = null;

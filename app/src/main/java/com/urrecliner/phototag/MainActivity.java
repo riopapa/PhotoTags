@@ -2,8 +2,9 @@ package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.buildBitMap;
 import static com.urrecliner.phototag.Vars.buildDB;
-import static com.urrecliner.phototag.Vars.dirNotReady;
+import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.fullFolder;
+import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
@@ -31,14 +32,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -48,7 +47,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -80,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         buildDB = new BuildDB();
         newPhoto = new NewPhoto();
         buildBitMap = new BuildBitMap();
+        makeDirFolder = new MakeDirFolder();
+        makeDirFolder.makeReady();
 
         photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
                 .fallbackToDestructiveMigration()   // scima changeable
@@ -96,57 +96,25 @@ public class MainActivity extends AppCompatActivity {
         signatureMap = buildBitMap.buildSignatureMap();
         photoAdapter = new PhotoAdapter();
         photoView.setAdapter(photoAdapter);
-        makeDirFolder = new MakeDirFolder();
-        squeezeDB.getAll();
-        squeezeDB.run();
+
+        utils.getPreference();
+        fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
+        markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
+        markTextOutColor = sharedPref.getInt("markTextOutColor", ContextCompat.getColor(mContext, R.color.markOutColor));
+        utils.deleteOldLogFiles();
+        isNewFolder = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        utils.getPreference();
-        fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
-        markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
-        markTextOutColor = sharedPref.getInt("markTextOutColor", ContextCompat.getColor(mContext, R.color.markOutColor));
-
+        Log.w("onResume"," started "+fullFolder);
         utils.setShortFolderNames(fullFolder);
-        photoTags = new ArrayList<>();
-        ArrayList<File> photoFiles = utils.getFilteredFileList(fullFolder);
-        if (photoFiles.size() == 0) {
-            Toast.makeText(getApplicationContext(), "No jpg files in " + short2Folder + " folder\nSelect Folder", Toast.LENGTH_LONG).show();
-//            finish();
-//            Intent intent = new Intent(this, DirectoryActivity.class);
-//            startActivity(intent);
-//            return;
-//            shortFolder = "DCIM/Camera";
-//            longFolder = new File(Environment.getExternalStorageDirectory(), shortFolder).toString();
-        }
-        photoFiles.sort(Collections.reverseOrder());
-
-        prepareCards();
-        for (File photoFile : photoFiles) {
-            PhotoTag photoTag = new PhotoTag();
-            photoTag.fullFolder = fullFolder;
-            photoTag.photoName = photoFile.getName();
-            photoTag.orient = "x";
-            photoTags.add(photoTag);
-        }
-
         utils.showFolder(this.getSupportActionBar());
 
-        if (dirNotReady) {
-            new Timer().schedule(new TimerTask() {
-                public void run() {
-                    Handler mHandler = new Handler(Looper.getMainLooper());
-                    mHandler.postDelayed(() -> {
-                        MenuItem item = mainMenu.findItem(R.id.action_Directory);
-                        item.setEnabled(true);
-                        item.getIcon().setAlpha(255);
-                    }, 100);
-                }
-            }, 1000);
-        }
-        utils.deleteOldLogFiles();
+        if (isNewFolder)
+            buildPhotoAdaptor();
+
         FloatingActionButton fabUndo = findViewById(R.id.undo_select);
         fabUndo.setVisibility(View.INVISIBLE);
         fabUndo.setOnClickListener(v -> {
@@ -160,13 +128,41 @@ public class MainActivity extends AppCompatActivity {
                     photoAdapter.notifyItemChanged(i, photoTag);
                 }
             }
-//            photoAdapter.notifyDataSetChanged();
             fabUndo.setVisibility(View.INVISIBLE);
             MenuItem item = mainMenu.findItem(R.id.action_Delete);
             item.setVisible(false);
 
         });
         buildDB.fillUp(findViewById(R.id.main_layout));
+        enableFolderIcon();
+    }
+
+    private void buildPhotoAdaptor() {
+        photoTags = new ArrayList<>();
+        ArrayList<String> photoNames = utils.getFilteredFileNames(fullFolder);
+        if (photoNames.size() == 0) {
+            Toast.makeText(getApplicationContext(), "No jpg files in " + short2Folder + " folder\nSelect Folder", Toast.LENGTH_LONG).show();
+        }
+        photoNames.sort(Collections.reverseOrder());
+
+        prepareCards();
+        for (String photoName : photoNames) {
+            PhotoTag photoTag = new PhotoTag();
+            photoTag.fullFolder = fullFolder;
+            photoTag.photoName = photoName;
+            photoTag.orient = "x";
+            photoTags.add(photoTag);
+        }
+        isNewFolder = false;
+    }
+
+    static void enableFolderIcon () {
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        mHandler.postDelayed(() -> {
+            MenuItem item = mainMenu.findItem(R.id.action_Directory);
+            item.setEnabled(dirInfoReady);
+            item.getIcon().setAlpha((dirInfoReady)? 255:40);
+        }, 100);
     }
 
     static void prepareCards() {
@@ -183,11 +179,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         mainMenu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        if (dirNotReady) {
-            MenuItem item = mainMenu.findItem(R.id.action_Directory);
-            item.setEnabled(false);
-            item.getIcon().setAlpha(35);
-        }
         MenuItem item = mainMenu.findItem(R.id.action_Delete);
         item.setVisible(false);
         return true;
@@ -202,9 +193,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.action_Directory) {
-//            finish();
-            intent = new Intent(this, DirectoryActivity.class);
-            startActivity(intent);
+            if (dirInfoReady) {
+                intent = new Intent(this, DirectoryActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(mContext,"Wail till directory ready", Toast.LENGTH_LONG).show();
+            }
             return true;
         }
         else if (item.getItemId() == R.id.action_Delete) {
@@ -249,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         return arrayList;
     }
 
-    final long BACK_DELAY = 4000;
+    final long BACK_DELAY = 2000;
     long backKeyPressedTime;
     @Override
     public void onBackPressed() {

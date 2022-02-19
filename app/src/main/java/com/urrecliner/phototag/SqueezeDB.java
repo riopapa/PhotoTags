@@ -13,44 +13,56 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.urrecliner.phototag.Vars.dirFolders;
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.photoDao;
+import static com.urrecliner.phototag.Vars.photoTags;
+import static com.urrecliner.phototag.Vars.utils;
 
 class SqueezeDB {
 
-    private static int deleteCount;
-    private List<PhotoTag> tags;
     Timer timer = null;
 
-    void getAll() {
-        tags = photoDao.getAllPhotos();
-    }
-    void run() {
+    void squeeze() {
 
-        deleteCount = 0;
-        if (tags.size() == 0)
-            return;
-        timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (tags.size() > 0) {
-                    PhotoTag pt = tags.get(0);
-                    tags.remove(0);
-                    File file = new File(pt.fullFolder, pt.photoName);
-                    if (!file.exists()) {
-                        photoDao.delete(pt);
-                        Log.w("Delete " + deleteCount++, file.toString());
-                    }
-                } else {
-                    timer.cancel();
+        List<String> allFolders = photoDao.getAllFolders();
+        for (String folderName: allFolders) {
+            boolean isExist = false;
+            for (DirectoryFolder dirFolder: dirFolders) {
+                if (folderName.equals(dirFolder.getLongFolder())) {
+                    isExist = true;
+                    break;
                 }
             }
-        };
-        timer.schedule(timerTask, 0, 100);
-    }
+            if (!isExist) {
+                photoDao.deleteFolder(folderName);
+                Log.w("squeeze", folderName+" mass deleted ///");
+            }
+        }
 
+        PhotoTag photoTag = new PhotoTag();
+        for (int i = 0; i < dirFolders.size(); i++) {
+            String fullFolder = dirFolders.get(i).getLongFolder();
+
+            List<Integer> dirCounts = photoDao.getRowCount(fullFolder);
+            if (dirCounts.get(0) == 0)
+                continue;;
+            if (dirCounts.get(0) != dirFolders.get(i).getNumberOfPics()) {
+                List<String> daoPhotos = photoDao.getAllInFolder(fullFolder);
+                for (int p = 0; p < daoPhotos.size(); p++) {
+                    String shortName = daoPhotos.get(p);
+                    File file = new File(fullFolder, shortName);
+                    if (!file.exists()) {
+                        photoTag.fullFolder = fullFolder;
+                        photoTag.photoName = shortName;
+                        photoDao.delete(photoTag);
+                        Log.w("squeeze", "Delete " + fullFolder + " / " + shortName);
+                    }
+                }
+            }
+        }
+    }
 
     void cancel() {
         if (timer != null) {

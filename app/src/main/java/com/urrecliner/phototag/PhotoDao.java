@@ -19,8 +19,16 @@ public interface PhotoDao {
     List<PhotoTag> getAllPhotos();
 
     /* query all photos within one fullFolder */
-    @Query("SELECT * FROM phototag WHERE fullFolder LIKE :fullFolder")
-    List<PhotoTag> getAllInFolder(String fullFolder);
+    @Query("SELECT photoName  FROM phototag WHERE fullFolder LIKE :fullFolder")
+    List<String> getAllInFolder(String fullFolder);
+
+    /* query unique directory list */
+    @Query("SELECT DISTINCT fullFolder from phototag")
+    List<String> getAllFolders();
+
+    /* query photo counts in one folder */
+    @Query("SELECT COUNT(photoName) FROM phototag WHERE fullFolder LIKE :fullFolder")
+    List<Integer> getRowCount(String fullFolder);
 
     /* query by unique full path name */
     @Query("SELECT * FROM phototag WHERE fullFolder LIKE :fullFolder AND "
@@ -35,5 +43,8 @@ public interface PhotoDao {
 
     @Delete
     void delete(PhotoTag photoTag);
+
+    @Query("DELETE FROM phototag WHERE fullFolder = :fullFolder")
+    void deleteFolder(String fullFolder);
 
 }

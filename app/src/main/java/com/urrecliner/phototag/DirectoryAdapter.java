@@ -1,6 +1,5 @@
 package com.urrecliner.phototag;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,15 +10,14 @@ import android.widget.TextView;
 
 import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.dirActivity;
-import static com.urrecliner.phototag.Vars.dirNotReady;
+import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.dirFolders;
 import static com.urrecliner.phototag.Vars.fullFolder;
-import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.multiMode;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.short1Folder;
 import static com.urrecliner.phototag.Vars.short2Folder;
-import static com.urrecliner.phototag.Vars.squeezeDB;
 import static com.urrecliner.phototag.Vars.utils;
 
 public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.ViewHolder> {
@@ -48,8 +46,8 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
                 dirActivity.finish();
                 buildDB.cancel();
                 multiMode = false;
-                dirNotReady = false;
                 dirActivity.finish();
+                isNewFolder = true;
 //                Intent intent = new Intent(mContext, MainActivity.class);
 //                dirActivity.startActivity(intent);
             });

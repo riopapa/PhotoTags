@@ -1,6 +1,7 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.photoTags;
@@ -84,6 +85,8 @@ class BuildDB {
                 snackBar = null;
             }
             photoView.setBackgroundColor(Color.WHITE);
+            if (dirInfoReady)
+                squeezeDB.squeeze();
         }
     }
 

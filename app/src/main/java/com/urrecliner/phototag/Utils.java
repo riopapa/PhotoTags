@@ -135,6 +135,15 @@ class Utils {
         return sortedFileList;
     }
 
+    ArrayList <String> getFilteredFileNames(String fullPath) {
+        String[] shortFileNames = new File(fullPath).list((dir, name) ->
+                ((name.endsWith("jpg") || name.endsWith("JPG")) && !name.startsWith(".")));
+        ArrayList<String> sortedFileList = new ArrayList<>();
+        if (shortFileNames != null)
+            sortedFileList.addAll(Arrays.asList(shortFileNames));
+        return sortedFileList;
+    }
+
     private String getAppLabel(Context context) {
         PackageManager packageManager = context.getPackageManager();
         ApplicationInfo applicationInfo = null;

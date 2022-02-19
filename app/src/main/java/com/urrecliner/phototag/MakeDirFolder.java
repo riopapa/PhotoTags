@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,14 +17,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.urrecliner.phototag.Vars.dirFolders;
+import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.sizeX;
+import static com.urrecliner.phototag.Vars.squeezeDB;
 import static com.urrecliner.phototag.Vars.utils;
-import static com.urrecliner.phototag.Vars.FolderPhoto;
 
 public class MakeDirFolder {
 
-    MakeDirFolder() {
+    void makeReady() {
         new Timer().schedule(new TimerTask() {
             public void run() {
                 dirFolders = getPicFolders();
@@ -36,7 +36,7 @@ public class MakeDirFolder {
 
     class dirTask extends AsyncTask<String, String, String> {
 
-        ArrayList<File> photoFiles;
+        ArrayList<String> photoNames;
         @Override
         protected String doInBackground(String... inputParams) {
             int index = 0;
@@ -45,22 +45,23 @@ public class MakeDirFolder {
 //            utils.log("dir","size ="+dirFolders.size());
             for (DirectoryFolder df: dirFolders) {
 //                utils.log("dir","df ="+df.getLongFolder());
-                photoFiles = utils.getFilteredFileList(df.getLongFolder());
-                if (photoFiles.size() != 0) {
+                String folderName = df.getLongFolder();
+                photoNames = utils.getFilteredFileNames(folderName);
+                if (photoNames.size() != 0) {
 //               Collections.sort(photoFiles, Collections.<File>reverseOrder());
-                    int photoSize = photoFiles.size();
+                    int photoSize = photoNames.size();
                     df.setNumberOfPics(photoSize);
                     File[] photo4 = new File[4];
                     try {
                         if (photoSize > 8) {
-                            photo4[0] = new File(photoFiles.get(0).getAbsolutePath());
-                            photo4[1] = new File(photoFiles.get(photoSize-1).getAbsolutePath());
-                            photo4[2] = new File(photoFiles.get((photoSize-1)/3).getAbsolutePath());
-                            photo4[3] = new File(photoFiles.get((photoSize-1)*2/3).getAbsolutePath());
+                            photo4[0] = new File(folderName, photoNames.get(0));
+                            photo4[1] = new File(folderName, photoNames.get(photoSize-1));
+                            photo4[2] = new File(folderName, photoNames.get((photoSize-1)/3));
+                            photo4[3] = new File(folderName, photoNames.get((photoSize-1)*2/3));
                         } else {
                             int maxCnt = Math.min(photoSize, 4);
                             for (int i = 0; i < maxCnt; i++)
-                                photo4[i] = new File(photoFiles.get(i).getAbsolutePath());
+                                photo4[i] = new File(folderName, photoNames.get(i));
                         }
                     } catch (Exception e) {
                         utils.log("df","bad images in "+df.getLongFolder());
@@ -81,6 +82,9 @@ public class MakeDirFolder {
 
         @Override
         protected void onPostExecute(String doI) {
+            dirInfoReady = true;
+            MainActivity.enableFolderIcon();
+            squeezeDB.squeeze();
         }
     }
 
