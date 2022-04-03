@@ -10,7 +10,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 
 @Entity (primaryKeys = {"fullFolder","photoName"})
-public class PhotoTag {
+public class PhotoTag implements Cloneable {
 
     @NonNull
     @ColumnInfo (name = "fullFolder")   // sdcard/DCIM/camera
@@ -49,7 +49,9 @@ public class PhotoTag {
     }
 
     public boolean isChecked() { return isChecked; }
-
     public void setChecked(boolean checked) { isChecked = checked; }
 
+    public PhotoTag clone() throws CloneNotSupportedException {
+        return (PhotoTag) super.clone();
+    }
 }

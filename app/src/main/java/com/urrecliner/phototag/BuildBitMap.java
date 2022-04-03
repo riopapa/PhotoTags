@@ -105,7 +105,7 @@ class BuildBitMap {
 
     Bitmap makeChecked(Bitmap photoMap) {
 
-        int delta = 2;
+        int delta = 8;
         int delta2 = delta + delta;
         int width = photoMap.getWidth();
         int height = photoMap.getHeight();
@@ -119,7 +119,7 @@ class BuildBitMap {
         paint.setAntiAlias(true);
         paint.setColor(mContext.getColor(R.color.xorColor));
         canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DARKEN));
         Bitmap bitmap = Bitmap.createBitmap(photoMap, delta2, delta2, width-delta2-delta2, height-delta2-delta2);
         canvas.drawBitmap(bitmap, delta2, delta2, paint);
         return outMap;

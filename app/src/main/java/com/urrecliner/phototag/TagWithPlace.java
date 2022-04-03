@@ -1,6 +1,5 @@
 package com.urrecliner.phototag;
 
-import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.byPlaceName;
 import static com.urrecliner.phototag.Vars.copyPasteGPS;
 import static com.urrecliner.phototag.Vars.copyPasteText;
@@ -74,7 +73,7 @@ public class TagWithPlace extends AppCompatActivity {
     String dateTimeColon, dateTimeFileName = null;
     String maker, model;
     double latitude, longitude, altitude;
-    PhotoTag orgPT;
+    PhotoTag orgPT, newPT;
     File fileFullName;
     String orient;
     Bitmap bitmap;
@@ -151,10 +150,10 @@ public class TagWithPlace extends AppCompatActivity {
                 Toast.makeText(mContext,"No GPS Information to retrieve places",Toast.LENGTH_LONG).show();
             EditText etPlace = findViewById(R.id.placeAddress);
             nowPlace = etPlace.getText().toString();
-            if (nowPlace.length() > 5) {
-                orgPT.photoName = NewPhoto.add(orgPT);
+            if (nowPlace.length() > 2) {
+                newPT = NewPhoto.save(orgPT);
+                photoTags.add(nowPos, newPT);
                 photoAdapter.notifyItemInserted(nowPos);
-                photoTags.add(nowPos, orgPT);
                 finish();
             }
         });
@@ -259,7 +258,8 @@ public class TagWithPlace extends AppCompatActivity {
         pt.photoName = tgtName;
         pt.sumNailMap = null;
         photoTags.add(nowPos, orgPT);
-        photoAdapter.notifyItemInserted(nowPos);
+        photoAdapter.notifyItemInserted(nowPos++);
+        photoAdapter.notifyItemChanged(nowPos);
         photoDao.insert(orgPT);
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File (fullFolder, tgtName))));
         finish();

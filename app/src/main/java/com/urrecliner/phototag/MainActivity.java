@@ -157,12 +157,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     static void enableFolderIcon () {
-        Handler mHandler = new Handler(Looper.getMainLooper());
-        mHandler.postDelayed(() -> {
-            MenuItem item = mainMenu.findItem(R.id.action_Directory);
-            item.setEnabled(dirInfoReady);
-            item.getIcon().setAlpha((dirInfoReady)? 255:40);
-        }, 100);
+        if (mainMenu != null) {
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            mHandler.postDelayed(() -> {
+                MenuItem item = mainMenu.findItem(R.id.action_Directory);
+                item.setEnabled(dirInfoReady);
+                item.getIcon().setAlpha((dirInfoReady) ? 255 : 40);
+            }, 100);
+        }
     }
 
     static void prepareCards() {

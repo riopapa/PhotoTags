@@ -1,6 +1,8 @@
 package com.urrecliner.phototag;
 
 import android.content.SharedPreferences;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +56,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
         }
     }
 
+    @NonNull
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.folder_item, parent, false);
         return new ViewHolder(view);

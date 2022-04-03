@@ -7,7 +7,6 @@ import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.photoTags;
-import static com.urrecliner.phototag.Vars.newPhoto;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.photoAdapter;
 import static com.urrecliner.phototag.Vars.utils;
@@ -48,8 +47,8 @@ class TagMulti {
                     photoTags.set(pos, photoTag);
                     publishProgress(PROGRESS_CHECKUP,""+pos);
                     msg.append("\n").append(photoTag.photoName);
-                    String outName = newPhoto.add(photoTag);
-                    publishProgress(PROGRESS_UPDATE + makeCount + ") "+photoTag.photoName, "" + pos, outName);
+                    PhotoTag newPhoto = NewPhoto.save(photoTag);
+                    publishProgress(PROGRESS_UPDATE + makeCount + ") "+photoTag.photoName, "" + pos, newPhoto.photoName);
                 } else
                     pos--;
             }

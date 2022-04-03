@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tag Photo</string>
+    <string name="app_name">Photo Tag</string>
     <string name="select_Directory">Select Directory</string>
     <string name="setting">Settig</string>
     <string name="delete">Delete File</string>

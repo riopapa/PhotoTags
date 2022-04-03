@@ -1,7 +1,6 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.FolderPhoto;
-import static com.urrecliner.phototag.Vars.copyPasteGPS;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.sharedAlpha;
@@ -121,19 +120,19 @@ class Utils {
                 }
             }
         } catch (Exception e) {
-            Log.e("creating Directory error", directory.toString() + "_" + e.toString());
+            Log.e("creating Directory error", directory + "_" + e);
         }
         return directory;
     }
 
-    ArrayList <File> getFilteredFileList(String fullPath) {
-        File[] fullFileList = new File(fullPath).listFiles((dir, name) ->
-                ((name.endsWith("jpg") || name.endsWith("JPG")) && !name.startsWith(".")));
-        ArrayList<File> sortedFileList = new ArrayList<>();
-        if (fullFileList != null)
-            sortedFileList.addAll(Arrays.asList(fullFileList));
-        return sortedFileList;
-    }
+//    ArrayList <File> getFilteredFileList(String fullPath) {
+//        File[] fullFileList = new File(fullPath).listFiles((dir, name) ->
+//                ((name.endsWith("jpg") || name.endsWith("JPG")) && !name.startsWith(".")));
+//        ArrayList<File> sortedFileList = new ArrayList<>();
+//        if (fullFileList != null)
+//            sortedFileList.addAll(Arrays.asList(fullFileList));
+//        return sortedFileList;
+//    }
 
     ArrayList <String> getFilteredFileNames(String fullPath) {
         String[] shortFileNames = new File(fullPath).list((dir, name) ->
@@ -220,70 +219,148 @@ class Utils {
         }
     }
 
-    static final private SimpleDateFormat sdfHourMinSec = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.ENGLISH);
+//    static final private SimpleDateFormat sdfHourMinSec = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.ENGLISH);
+
+//    void copyExif(String folderName, String inpName, String outName, String orientation) {
+//        ExifInterface exifOrg, exifNew;
+//        File inpFile = new File(folderName, inpName);
+//        File outFile = new File(folderName, outName);
+//        double latitude = 0, longitude = 0, altitude = 0;
+//        try {
+//            exifOrg = new ExifInterface(inpFile.getAbsolutePath());
+//            exifNew = new ExifInterface(outFile.getAbsolutePath());
+//
+//            if (exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE) == null) {
+//                if (copyPasteGPS != null) {
+//                    String[] s = copyPasteGPS.split(";");
+//                    latitude = Double.parseDouble(s[0]);
+//                    longitude = Double.parseDouble(s[1]);
+//                    altitude = Double.parseDouble(s[2]);
+//                }
+//            }
+//            else {
+//                longitude = LatLngConv.DMS2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_LONGITUDE),
+//                        exifOrg.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
+//                latitude = LatLngConv.DMS2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE),
+//                        exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+//                altitude = LatLngConv.ALT2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_ALTITUDE),
+//                        exifOrg.getAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF));
+//            }
+//
+//            exifNew.setAttribute(ExifInterface.TAG_MAKE, exifOrg.getAttribute(ExifInterface.TAG_MAKE));
+//            exifNew.setAttribute(ExifInterface.TAG_MODEL, exifOrg.getAttribute(ExifInterface.TAG_MODEL));
+//            exifNew.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
+//
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE, LatLngConv.GPS2DMS(latitude));
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0.0d ? "S" : "N");
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, LatLngConv.GPS2DMS(longitude));
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude < 0.0d ? "W" : "E");
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, ""+((altitude > 0) ? altitude:-altitude));
+//            exifNew.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, (altitude> 0)? "0":"1");
+//
+//            String dateTime = exifOrg.getAttribute(ExifInterface.TAG_DATETIME);
+//            if (dateTime == null) {
+//                dateTime = sdfHourMinSec.format(inpFile.lastModified());
+//            }
+//            exifNew.setAttribute(ExifInterface.TAG_DATETIME, dateTime);
+//            exifNew.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, "by riopapa");
+//            exifNew.saveAttributes();
+//            String finalDateTime = dateTime;
+//            new Timer().schedule(new TimerTask() {
+//                public void run() {
+//                    try {
+//                        Date photoDate = sdfHourMinSec.parse(finalDateTime);
+//                        outFile.setLastModified(photoDate.getTime());
+//                    }
+//                    catch (Exception e){
+////                        photoDate = new Date(fileOrg.lastModified());
+//                    }
+//                }
+//            }, 500);
+//        } catch (IOException e) {
+//            utils.log("1",e.toString());
+//            e.printStackTrace();
+//        }
+//    }
+//
+//
+//    void deleteOldLogFiles() {
+//
+//        String oldDate = PREFIX + sdfDate.format(System.currentTimeMillis() - 2*24*60*60*1000L);
+//        File[] files = getPackageDirectory().listFiles((dir, name) -> name.endsWith(".txt"));
+//        if (files != null) {
+//            Collator myCollator = Collator.getInstance();
+//            for (File file : files) {
+//                String shortFileName = file.getName();
+//                if (myCollator.compare(shortFileName, oldDate) < 0) {
+//                    if (file.delete())
+//                        utils.log("delete old log",shortFileName);
+//                    else
+//                        Log.e("file", "Delete Error " + file);
+//                }
+//            }
+//        }
+//    }
 
     void copyExif(String folderName, String inpName, String outName, String orientation) {
-        ExifInterface exifOrg, exifNew;
         File inpFile = new File(folderName, inpName);
         File outFile = new File(folderName, outName);
-        double latitude = 0, longitude = 0, altitude = 0;
+
+        String[] attributes = new String[]
+                {
+                        ExifInterface.TAG_DATETIME,
+                        ExifInterface.TAG_DATETIME_DIGITIZED,
+                        ExifInterface.TAG_RW2_ISO,
+                        ExifInterface.TAG_EXPOSURE_TIME,
+                        ExifInterface.TAG_EXPOSURE_INDEX,
+                        ExifInterface.TAG_F_NUMBER,
+                        ExifInterface.TAG_FOCAL_LENGTH,
+                        ExifInterface.TAG_FLASH,
+                        ExifInterface.TAG_FOCAL_LENGTH,
+                        ExifInterface.TAG_GPS_ALTITUDE,
+                        ExifInterface.TAG_GPS_ALTITUDE_REF,
+                        ExifInterface.TAG_GPS_DATESTAMP,
+                        ExifInterface.TAG_GPS_LATITUDE,
+                        ExifInterface.TAG_GPS_LATITUDE_REF,
+                        ExifInterface.TAG_GPS_LONGITUDE,
+                        ExifInterface.TAG_GPS_LONGITUDE_REF,
+                        ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                        ExifInterface.TAG_ISO_SPEED,
+                        ExifInterface.TAG_GPS_TIMESTAMP,
+                        ExifInterface.TAG_MAKE,
+                        ExifInterface.TAG_MODEL,
+//                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.TAG_SUBSEC_TIME,
+                        ExifInterface.TAG_WHITE_BALANCE
+                };
+
+
+        ExifInterface oldExif = null;
+        ExifInterface newExif = null;
         try {
-            exifOrg = new ExifInterface(inpFile.getAbsolutePath());
-            exifNew = new ExifInterface(outFile.getAbsolutePath());
-
-            if (exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE) == null) {
-                if (copyPasteGPS != null) {
-                    String[] s = copyPasteGPS.split(";");
-                    latitude = Double.parseDouble(s[0]);
-                    longitude = Double.parseDouble(s[1]);
-                    altitude = Double.parseDouble(s[2]);
-                }
-            }
-            else {
-                longitude = LatLngConv.DMS2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_LONGITUDE),
-                        exifOrg.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
-                latitude = LatLngConv.DMS2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE),
-                        exifOrg.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
-                altitude = LatLngConv.ALT2GPS(exifOrg.getAttribute(ExifInterface.TAG_GPS_ALTITUDE),
-                        exifOrg.getAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF));
-            }
-
-            exifNew.setAttribute(ExifInterface.TAG_MAKE, exifOrg.getAttribute(ExifInterface.TAG_MAKE));
-            exifNew.setAttribute(ExifInterface.TAG_MODEL, exifOrg.getAttribute(ExifInterface.TAG_MODEL));
-            exifNew.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
-
-            exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE, LatLngConv.GPS2DMS(latitude));
-            exifNew.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0.0d ? "S" : "N");
-            exifNew.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, LatLngConv.GPS2DMS(longitude));
-            exifNew.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude < 0.0d ? "W" : "E");
-            exifNew.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, ""+((altitude > 0) ? altitude:-altitude));
-            exifNew.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, (altitude> 0)? "0":"1");
-
-            String dateTime = exifOrg.getAttribute(ExifInterface.TAG_DATETIME);
-            if (dateTime == null) {
-                dateTime = sdfHourMinSec.format(inpFile.lastModified());
-            }
-            exifNew.setAttribute(ExifInterface.TAG_DATETIME, dateTime);
-            exifNew.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, "by riopapa");
-            exifNew.saveAttributes();
-            String finalDateTime = dateTime;
-            new Timer().schedule(new TimerTask() {
-                public void run() {
-                    try {
-                        Date photoDate = sdfHourMinSec.parse(finalDateTime);
-                        outFile.setLastModified(photoDate.getTime());
-                    }
-                    catch (Exception e){
-//                        photoDate = new Date(fileOrg.lastModified());
-                    }
-                }
-            }, 500);
+            oldExif = new ExifInterface(inpFile);
+            newExif = new ExifInterface(outFile);
         } catch (IOException e) {
-            utils.log("1",e.toString());
             e.printStackTrace();
         }
-    }
 
+        for (String attribute : attributes) {
+            String value = oldExif.getAttribute(attribute);
+            if (value != null)
+                newExif.setAttribute(attribute, value);
+        }
+        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
+        try {
+            newExif.saveAttributes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                outFile.setLastModified(inpFile.lastModified());
+            }
+        }, 1000);
+    }
 
     void deleteOldLogFiles() {
 
@@ -316,7 +393,7 @@ class Utils {
         return folderPhoto;
     }
     void setShortFolderNames(String folderName) {
-        String s[] = folderName.split("/");
+        String[] s = folderName.split("/");
         int len = s.length;
         if (len >= 2) {
             short1Folder = s[len-2];
@@ -360,7 +437,7 @@ class Utils {
     String BitMapToString(Bitmap bitmap){
         ByteArrayOutputStream baos= new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
-        byte [] b=baos.toByteArray();
+        byte [] b = baos.toByteArray();
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
@@ -369,7 +446,7 @@ class Utils {
             byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
             return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
         } catch(Exception e) {
-            utils.log("utils", " StringToBitMap Error "+e.toString());
+            utils.log("utils", " StringToBitMap Error "+e);
             return null;
         }
     }
