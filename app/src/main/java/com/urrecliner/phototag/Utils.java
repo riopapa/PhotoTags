@@ -7,6 +7,7 @@ import static com.urrecliner.phototag.Vars.sharedAlpha;
 import static com.urrecliner.phototag.Vars.sharedAutoLoad;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.sharedRadius;
+import static com.urrecliner.phototag.Vars.sharedSigNbr;
 import static com.urrecliner.phototag.Vars.sharedSort;
 import static com.urrecliner.phototag.Vars.sharedSpan;
 import static com.urrecliner.phototag.Vars.short1Folder;
@@ -425,6 +426,7 @@ class Utils {
             editor.putString("sort", "none");
             editor.putString("span","3");
             editor.putString("alpha","180");
+            editor.putInt("signature", 0);
             editor.apply();
         }
         sharedRadius = sharedPref.getString("radius", "200");
@@ -432,6 +434,7 @@ class Utils {
         sharedSort = sharedPref.getString("sort", "none");
         sharedSpan = sharedPref.getString("span","3");
         sharedAlpha = sharedPref.getString("alpha","180");
+        sharedSigNbr = sharedPref.getInt("signature", 0);
     }
 
     String BitMapToString(Bitmap bitmap){

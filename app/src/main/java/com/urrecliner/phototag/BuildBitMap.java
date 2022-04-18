@@ -2,6 +2,7 @@ package com.urrecliner.phototag;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,25 +14,25 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.os.Environment;
+
 import androidx.exifinterface.media.ExifInterface;
 import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import static com.urrecliner.phototag.Vars.mContext;
-import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.sharedAlpha;
+import static com.urrecliner.phototag.Vars.sharedPref;
+import static com.urrecliner.phototag.Vars.sharedSigNbr;
+import static com.urrecliner.phototag.Vars.sigColors;
 import static com.urrecliner.phototag.Vars.sizeX;
 
 class BuildBitMap {
 
     String sFood, sPlace, sAddress;
-    Bitmap signatureMap;
     Activity activity;
     Context context;
     String orient;
@@ -39,7 +40,6 @@ class BuildBitMap {
     public void init(Activity activity, Context context, String orient) {
         this.activity = activity;this.context = context;
         this.orient = orient;
-        this.signatureMap = buildSignatureMap();
     }
 
     // build photoTag.sumName & update room db
@@ -53,7 +53,7 @@ class BuildBitMap {
             bitmap = BitmapFactory.decodeFile(fullFileName).copy(Bitmap.Config.RGB_565, false);
         } catch (Exception e) {
             Toast.makeText(mContext,fullFileName+" file error", Toast.LENGTH_LONG).show();
-            bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.signature).copy(Bitmap.Config.RGB_565, false);
+            bitmap = BitmapFactory.decodeResource(mContext.getResources(), sigColors[sharedSigNbr]).copy(Bitmap.Config.RGB_565, false);
         }
         assert bitmap != null;
         int width = bitmap.getWidth();
@@ -138,6 +138,9 @@ class BuildBitMap {
             return newMap;
         this.sFood = food; this.sPlace = place; this.sAddress = address;
         markFoodPlaceAddress(width, height, canvas);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("signature", sharedSigNbr);
+        editor.apply();
         return newMap;
     }
 
@@ -157,6 +160,7 @@ class BuildBitMap {
 
     private void markSignature(int width, int height, Canvas canvas) {
         int sigSize = (width + height) / 18;
+        Bitmap signatureMap = buildSignatureMap();
         Bitmap sigMap = Bitmap.createScaledBitmap(signatureMap, sigSize, sigSize, false);
         int xPos = width - sigSize - width / 40;
         int yPos = (width>height) ? height/16: height/20;
@@ -228,12 +232,12 @@ class BuildBitMap {
 
     Bitmap buildSignatureMap() {
         Bitmap sigMap;
-        File sigFile = new File(Environment.getExternalStorageDirectory(),"signature.png");
-        if (sigFile.exists()) {
-            sigMap = BitmapFactory.decodeFile(sigFile.toString(), null);
-        }
-        else
-            sigMap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.signature);
+//        File sigFile = new File(Environment.getExternalStorageDirectory(),"signature.png");
+//        if (sigFile.exists()) {
+//            sigMap = BitmapFactory.decodeFile(sigFile.toString(), null);
+//        }
+//        else
+        sigMap = BitmapFactory.decodeResource(mContext.getResources(), sigColors[sharedSigNbr]);
         Bitmap newBitmap = Bitmap.createBitmap(sigMap.getWidth(), sigMap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(newBitmap);
         canvas.drawBitmap(sigMap, 0, 0, null);

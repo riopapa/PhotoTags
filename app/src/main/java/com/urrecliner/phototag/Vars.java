@@ -77,6 +77,7 @@ public class Vars {
     static boolean sharedAutoLoad = false;
     static String sharedSpan = "";
     static String sharedAlpha = "";
+    static int sharedSigNbr = 0;
 
     /* --- place select related variables --- */
     public static boolean nowDownLoading = false;
@@ -103,6 +104,7 @@ public class Vars {
             "park", "bank","worship_dharma", "pharmacy", "parking", "hospital",
             "cemetery_grave"
     };
+
     static int [] iconRaws = { R.raw.question,
             R.raw.airport, R.raw.amusement, R.raw.aquarium, R.raw.art_gallery, R.raw.atm, R.raw.baby,
             R.raw.bank_dollar, R.raw.bank_euro, R.raw.bank_pound, R.raw.bank_yen, R.raw.bar, R.raw.barber,
@@ -133,5 +135,7 @@ public class Vars {
             "parking", "school", "museum", "tourist_attraction", "amusement",
             "university", "atm", "zoo", "lodging",
             "all"};
+    static int[] sigColors = {R.mipmap.signature0, R.mipmap.signature1, R.mipmap.signature2,
+                R.mipmap.signature3, R.mipmap.signature4 };
 
 }

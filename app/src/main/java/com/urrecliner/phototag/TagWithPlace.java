@@ -17,6 +17,8 @@ import static com.urrecliner.phototag.Vars.placeActivity;
 import static com.urrecliner.phototag.Vars.placeInfos;
 import static com.urrecliner.phototag.Vars.placeType;
 import static com.urrecliner.phototag.Vars.sharedRadius;
+import static com.urrecliner.phototag.Vars.sharedSigNbr;
+import static com.urrecliner.phototag.Vars.sigColors;
 import static com.urrecliner.phototag.Vars.tvPlaceAddress;
 import static com.urrecliner.phototag.Vars.typeAdapter;
 import static com.urrecliner.phototag.Vars.typeIcons;
@@ -77,7 +79,7 @@ public class TagWithPlace extends AppCompatActivity {
     File fileFullName;
     String orient;
     Bitmap bitmap;
-    ImageView photoImage;
+    ImageView photoImage, sigImage;
 
     static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
     static final SimpleDateFormat sdfFile = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
@@ -127,6 +129,16 @@ public class TagWithPlace extends AppCompatActivity {
             }
         }
         photoImage.setImageBitmap(bitmap);
+        sigImage = findViewById(R.id.signature);
+        sigImage.setImageResource(sigColors[sharedSigNbr]);
+        sigImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sharedSigNbr++;
+                sharedSigNbr = sharedSigNbr % sigColors.length;
+                sigImage.setImageResource(sigColors[sharedSigNbr]);
+            }
+        });
         PhotoViewAttacher pA;       // to enable zoom
         pA = new PhotoViewAttacher(photoImage);
         pA.update();

@@ -93,11 +93,10 @@ public class MainActivity extends AppCompatActivity {
         display.getSize(size);
         sizeX = size.x;
 
-        signatureMap = buildBitMap.buildSignatureMap();
+        utils.getPreference();
         photoAdapter = new PhotoAdapter();
         photoView.setAdapter(photoAdapter);
 
-        utils.getPreference();
         fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
         markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
         markTextOutColor = sharedPref.getInt("markTextOutColor", ContextCompat.getColor(mContext, R.color.markOutColor));
