@@ -28,6 +28,7 @@ import static com.urrecliner.phototag.Vars.typeNumber;
 import static com.urrecliner.phototag.Vars.utils;
 import static com.urrecliner.phototag.placeNearby.PlaceParser.pageToken;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -52,6 +53,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -376,6 +379,10 @@ public class TagWithPlace extends AppCompatActivity {
             iv.setEnabled(true);
             return true;
         }
+        else if (item.getItemId() == R.id.sharePhoto) {
+            sharePhoto(fileFullName);
+            return true;
+        }
         else if (item.getItemId() == R.id.markDelete) {
             nowPlace = null;
             deleteOnConfirm(nowPos);
@@ -425,6 +432,20 @@ public class TagWithPlace extends AppCompatActivity {
         MainActivity.showPopup(builder);
     }
 
+    void sharePhoto(File file) {
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", file);
+
+        //        File [] fileList = {file};
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/*");    // 이미지만 여러장 공유 가능
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//        for(File f : fileList){
+//            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", f);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+//        }
+        startActivity(Intent.createChooser(shareIntent,"Photo Share"));
+
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();

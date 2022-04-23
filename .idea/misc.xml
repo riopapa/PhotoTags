@@ -25,6 +25,8 @@
         <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/layout/activity_tag.xml" value="0.2630208333333333" />
         <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/layout/photo_item.xml" value="0.2630208333333333" />
         <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/menu/main_menu.xml" value="0.1359375" />
+        <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/menu/photo_menu.xml" value="0.2635416666666667" />
+        <entry key="..\:/@ANDROID/PhotoTag/app/src/main/res/xml/file_provider.xml" value="0.1431159420289855" />
       </map>
     </option>
   </component>
