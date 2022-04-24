@@ -55,6 +55,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.urrecliner.phototag.Utility.SharePhoto;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -204,18 +205,27 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (item.getItemId() == R.id.action_Delete) {
             final ArrayList<String> toDeleteList = build_DeletePhoto();
-            if (toDeleteList.size()> 0) {
+            if (toDeleteList.size() > 0) {
                 StringBuilder msg = new StringBuilder();
                 for (String s : toDeleteList) msg.append("\n").append(s);
                 AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 builder.setTitle("Delete multiple photos ?");
                 builder.setMessage(msg.toString());
                 builder.setPositiveButton("Yes", (dialog, which) -> DeleteMulti.run());
-                builder.setNegativeButton("No", (dialog, which) -> { });
+                builder.setNegativeButton("No", (dialog, which) -> {
+                });
                 showPopup(builder);
             } else {
-                Toast.makeText(mContext,"Photo selection is required to delete",Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, "Photo selection is required to delete", Toast.LENGTH_LONG).show();
             }
+        }
+        else if (item.getItemId() == R.id.shareMultiPhoto) {
+            ArrayList<File> arrayList = new ArrayList<>();
+            for (PhotoTag pT: photoTags) {
+                if (pT.isChecked())
+                    arrayList.add(new File(pT.fullFolder, pT.photoName));
+            }
+            new SharePhoto().send(getApplicationContext(), arrayList);
         }
         return super.onOptionsItemSelected(item);
     }

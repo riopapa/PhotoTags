@@ -59,6 +59,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.urrecliner.phototag.Utility.SharePhoto;
 import com.urrecliner.phototag.placeNearby.PlaceRetrieve;
 
 import java.io.File;
@@ -314,7 +315,6 @@ public class TagWithPlace extends AppCompatActivity {
         }, 1500);
     }
 
-
     private void getPhotoExif(File fileFullName) {
         Date photoDate;
         try {
@@ -380,7 +380,9 @@ public class TagWithPlace extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.sharePhoto) {
-            sharePhoto(fileFullName);
+            ArrayList<File> arrayList = new ArrayList<>();
+            arrayList.add(fileFullName);
+            new SharePhoto().send(getApplicationContext(), arrayList);
             return true;
         }
         else if (item.getItemId() == R.id.markDelete) {
@@ -432,20 +434,6 @@ public class TagWithPlace extends AppCompatActivity {
         MainActivity.showPopup(builder);
     }
 
-    void sharePhoto(File file) {
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", file);
-
-        //        File [] fileList = {file};
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/*");    // 이미지만 여러장 공유 가능
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//        for(File f : fileList){
-//            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", f);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-//        }
-        startActivity(Intent.createChooser(shareIntent,"Photo Share"));
-
-    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -453,5 +441,4 @@ public class TagWithPlace extends AppCompatActivity {
         int pos = (nowPos > 3) ? nowPos-3:0;
         photoView.scrollToPosition(pos);
     }
-
 }

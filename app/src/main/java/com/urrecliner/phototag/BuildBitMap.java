@@ -232,11 +232,6 @@ class BuildBitMap {
 
     Bitmap buildSignatureMap() {
         Bitmap sigMap;
-//        File sigFile = new File(Environment.getExternalStorageDirectory(),"signature.png");
-//        if (sigFile.exists()) {
-//            sigMap = BitmapFactory.decodeFile(sigFile.toString(), null);
-//        }
-//        else
         sigMap = BitmapFactory.decodeResource(mContext.getResources(), sigColors[sharedSigNbr]);
         Bitmap newBitmap = Bitmap.createBitmap(sigMap.getWidth(), sigMap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(newBitmap);

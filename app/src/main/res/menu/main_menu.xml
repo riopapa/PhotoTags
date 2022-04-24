@@ -24,4 +24,11 @@
         android:icon="@drawable/icon_delete"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/shareMultiPhoto"
+        android:icon="@drawable/share_photo"
+        android:orderInCategory="100"
+        android:title="Share Photo File"
+        app:showAsAction="always" />
+
 </menu>

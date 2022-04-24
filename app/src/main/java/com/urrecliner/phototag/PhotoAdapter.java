@@ -97,6 +97,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.RGB_565, false);
             boolean checked = !photoTag.isChecked();
             iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
+            iVImage.setBackgroundColor(checked ? 0x7caee2dc:0xffffffff);
             tVInfo.setTextColor((shortName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
             tVInfo.setText(shortName);
             photoTag.setChecked(checked);
@@ -109,6 +110,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
                     photoAdapter.notifyItemChanged(pos);
             }
             MenuItem item = mainMenu.findItem(R.id.action_Delete);
+            item.setVisible(true);
+            item = mainMenu.findItem(R.id.shareMultiPhoto);
             item.setVisible(true);
         }
     }
@@ -139,6 +142,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         params.width = width; params.height = height;
         holder.iVImage.setLayoutParams(params);
         holder.iVImage.setImageBitmap(photoMap);
+        holder.iVImage.setBackgroundColor(checked ? 0x7caee2dc:0xffffffff);
         holder.tVInfo.setTextColor((photoName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
         holder.tVInfo.setText(photoName);
     }
