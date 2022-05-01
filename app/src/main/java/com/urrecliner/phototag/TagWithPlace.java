@@ -277,7 +277,8 @@ public class TagWithPlace extends AppCompatActivity {
         photoAdapter.notifyItemInserted(nowPos++);
         photoAdapter.notifyItemChanged(nowPos);
         photoDao.insert(orgPT);
-        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File (fullFolder, tgtName))));
+        MediaScannerConnection.scanFile(mContext,
+                new String[]{new File (fullFolder, tgtName).toString()}, null, null);
         finish();
     }
 
@@ -397,14 +398,16 @@ public class TagWithPlace extends AppCompatActivity {
             File tgtFile;
             int C = 67; // 'C'
             do {
-                tgtFile = new File(orgName, dateTimeFileName + (char)C + ".jpg");
+                tgtFile = new File(orgPT.fullFolder, dateTimeFileName + (char)C + ".jpg");
                 if (!tgtFile.exists())
                     break;
                 C++;
             } while (C < 84);
-
-            new File (orgPT.getFullFolder(), orgName).renameTo(tgtFile);
-            orgPT.photoName = dateTimeFileName + (char)C + ".jpg";
+            File oldFile = new File (orgPT.fullFolder, orgName);
+            oldFile.renameTo(tgtFile);
+            MediaScannerConnection.scanFile(mContext,
+                    new String[]{tgtFile.toString(), oldFile.toString()}, null, null);
+            orgPT.photoName = tgtFile.getName();
             photoTags.set(nowPos, orgPT);
             photoAdapter.notifyItemChanged(nowPos, orgPT);
             finish();

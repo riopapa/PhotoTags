@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             mHandler.postDelayed(() -> {
                 MenuItem item = mainMenu.findItem(R.id.action_Directory);
                 item.setEnabled(dirInfoReady);
-                item.getIcon().setAlpha((dirInfoReady) ? 255 : 40);
+                item.setIcon((dirInfoReady) ? R.drawable.folder_open: R.drawable.folder_off);
             }, 100);
         }
     }
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, DirectoryActivity.class);
                 startActivity(intent);
             } else {
-                Toast.makeText(mContext,"Wail till directory ready", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext,"Wait till directory ready", Toast.LENGTH_LONG).show();
             }
             return true;
         }

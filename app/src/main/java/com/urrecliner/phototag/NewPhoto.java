@@ -73,12 +73,9 @@ class NewPhoto {
         tgtName += SUFFIX_JPG;
         utils.createPhotoFile(orgPhoto.fullFolder, orgName, tgtName, bitmap, "1");
         newPhoto.photoName = tgtName;
+        newPhoto.setSumNailMap(null);
         photoDao.insert(newPhoto);
         return newPhoto;
-    }
-
-    class OrderListBean {
-
     }
 
 }

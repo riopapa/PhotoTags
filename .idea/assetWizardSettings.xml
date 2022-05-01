@@ -318,7 +318,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$PROJECT_DIR$/../../zAndroid_SDK/icons/material/materialicons/share/baseline_share_24.xml" />
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../zAndroid_SDK/icons/material/materialicons/folder_off/baseline_folder_off_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -328,8 +328,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="2f0404" />
-                            <entry key="outputName" value="share_photo" />
+                            <entry key="color" value="aaaaaa" />
+                            <entry key="outputName" value="folder_off" />
                             <entry key="sourceFile" value="D:\@ANDROID\Markup Photo" />
                           </map>
                         </option>

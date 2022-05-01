@@ -21,6 +21,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -213,7 +214,8 @@ class Utils {
             os = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
             os.close();
-            mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+            MediaScannerConnection.scanFile(mContext,
+                    new String[]{file.toString()}, null, null);
         } catch (IOException e) {
             utils.logE("ioException", e.toString());
             Toast.makeText(mActivity, e.toString(),Toast.LENGTH_LONG).show();

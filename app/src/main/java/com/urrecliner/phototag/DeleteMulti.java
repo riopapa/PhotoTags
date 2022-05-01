@@ -1,6 +1,7 @@
 package com.urrecliner.phototag;
 
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.view.MenuItem;
@@ -11,6 +12,7 @@ import java.io.File;
 
 import static com.urrecliner.phototag.Vars.fabUndo;
 import static com.urrecliner.phototag.Vars.mActivity;
+import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
 import static com.urrecliner.phototag.Vars.photoAdapter;
 import static com.urrecliner.phototag.Vars.photoTags;
@@ -45,7 +47,8 @@ class DeleteMulti {
                 if (photoTag.isChecked()) {
                     File file2del = new File (photoTag.fullFolder, photoTag.photoName);
                     if (file2del.delete()) {
-                        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file2del)));
+                        MediaScannerConnection.scanFile(mContext,
+                                new String[]{file2del.toString()}, null, null);
                         deleteCount++;
                         msg.append("\n");
                         msg.append(file2del.getName());

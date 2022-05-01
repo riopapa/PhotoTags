@@ -170,14 +170,9 @@ class BuildBitMap {
 
     private void markFoodPlaceAddress(int width, int height, Canvas canvas) {
 
+        int fontSize = (width>height) ? (height + width) / 50: (height + width) / 60;
         int xPos = width / 2;
-//        int fontSize = (width>height) ? (height + width) / 70: (height + width) / 100;  // gps
-//        int yPos = (width>height) ? height - fontSize: height - fontSize*4;
-//        yPos = drawTextOnCanvas(canvas, sLatLng, fontSize, xPos, yPos); // no more GPS string
-        int fontSize = (width>height) ? (height + width) / 60: (height + width) / 80;
-        int yPos = (width>height) ? height - fontSize*2: height - fontSize*5;
-//        fontSize = fontSize * 12 / 10;  // address
-//        yPos -= fontSize + fontSize / 3;
+        int yPos = (width>height) ? height - fontSize*2: height - fontSize*2;
         yPos = drawTextOnCanvas(canvas, sAddress, fontSize, xPos, yPos);
         fontSize = fontSize * 12 / 10;  // Place
         yPos -= fontSize + fontSize / 3;
@@ -221,7 +216,7 @@ class BuildBitMap {
         paint.setTextSize(textSize);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth((int)(textSize/5+3));
+        paint.setStrokeWidth((int)(textSize/4+3));
         paint.setTypeface(mContext.getResources().getFont(R.font.nanumbarungothic));
         canvas.drawText(text, xPos, yPos, paint);
 

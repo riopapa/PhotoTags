@@ -14,7 +14,7 @@
         android:id="@+id/action_Directory"
         android:orderInCategory="100"
         android:title="@string/select_Directory"
-        android:icon="@drawable/icon_folder"
+        android:icon="@drawable/folder_off"
         app:showAsAction="always" />
 
     <item
