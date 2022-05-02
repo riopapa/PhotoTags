@@ -44,7 +44,7 @@ class DeleteMulti {
 
             for (int pos = photoTags.size() - 1; pos >= 0; pos--) {  // should be last to first
                 PhotoTag photoTag = photoTags.get(pos);
-                if (photoTag.isChecked()) {
+                if (photoTag.isChecked) {
                     File file2del = new File (photoTag.fullFolder, photoTag.photoName);
                     if (file2del.delete()) {
                         MediaScannerConnection.scanFile(mContext,

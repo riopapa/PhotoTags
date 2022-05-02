@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.makeFolderSumNail;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.photoTags;
 import static com.urrecliner.phototag.Vars.nowPlace;
@@ -41,9 +42,9 @@ class TagMulti {
 
             for (int pos = photoTags.size() - 1; pos >= 0; ) {  // should be last to first
                 PhotoTag photoTag = photoTags.get(pos);
-                if (photoTag.isChecked()) {
+                if (photoTag.isChecked) {
                     makeCount++;
-                    photoTag.setChecked(false);
+                    photoTag.isChecked = false;
                     photoTags.set(pos, photoTag);
                     publishProgress(PROGRESS_CHECKUP,""+pos);
                     msg.append("\n").append(photoTag.photoName);
@@ -74,11 +75,12 @@ class TagMulti {
                     newPhotoTag.fullFolder = fullFolder;
                     newPhotoTag.photoName = newName;
                     newPhotoTag.setSumNailMap(newPhotoTag.getSumNailMap());
-                    newPhotoTag.setOrient("1");
+                    newPhotoTag.orient = "1";
                     if (photoTags.get(pos-1).photoName.equals(newName)) {
                         pos--;
                         removeItemView(pos);
                         photoDao.delete(newPhotoTag);
+                        makeFolderSumNail.makeReady();
                     }
                     photoTags.add(pos, newPhotoTag);
                     photoAdapter.notifyItemInserted(pos);

@@ -35,7 +35,7 @@ public class Vars {
     static Utils utils;
     static SqueezeDB squeezeDB;
     static BuildDB buildDB;
-    static MakeDirFolder makeDirFolder;
+    static MakeFolderSumNail makeFolderSumNail;
     static NewPhoto newPhoto;
     static BuildBitMap buildBitMap;
     static ColorDraw colorDraw;
@@ -53,7 +53,7 @@ public class Vars {
 
     static boolean multiMode = false;
 //    static List<Photo> photos = null;
-    static ArrayList<DirectoryFolder> dirFolders = null;
+    static ArrayList<FolderInfo> folderInfos = null;
 
     static Menu mainMenu;
 

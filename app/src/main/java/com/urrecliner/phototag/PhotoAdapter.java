@@ -93,14 +93,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             fabUndo = mActivity.findViewById(R.id.undo_select);
             fabUndo.setVisibility(View.VISIBLE);
             PhotoTag photoTag = photoTags.get(position);
-            String shortName = photoTag.getPhotoName();
+            String shortName = photoTag.photoName;
             Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.RGB_565, false);
-            boolean checked = !photoTag.isChecked();
+            boolean checked = !photoTag.isChecked;
             iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
             iVImage.setBackgroundColor(checked ? 0x7caee2dc:0xffffffff);
             tVInfo.setTextColor((shortName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
             tVInfo.setText(shortName);
-            photoTag.setChecked(checked);
+            photoTag.isChecked = checked;
             photoTags.set(position, photoTag);
             if (!multiMode) {
                 multiMode = true;
@@ -131,8 +131,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             photoMap = nowPT.getSumNailMap();
         }
 
-        String photoName = nowPT.getPhotoName();
-        boolean checked = nowPT.isChecked();
+        String photoName = nowPT.photoName;
+        boolean checked = nowPT.isChecked;
         if (checked)
             photoMap = buildBitMap.makeChecked(photoMap.copy(Bitmap.Config.ARGB_8888, false));
         boolean landscape = photoMap.getWidth() > photoMap.getHeight();

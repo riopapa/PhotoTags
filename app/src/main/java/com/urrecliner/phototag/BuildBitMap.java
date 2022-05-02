@@ -46,7 +46,7 @@ class BuildBitMap {
 
     PhotoTag updateSumNail(PhotoTag nowPT) {
         ExifInterface exif;
-        String fullFileName = nowPT.getFullFolder()+"/"+nowPT.getPhotoName();
+        String fullFileName = nowPT.fullFolder+"/"+nowPT.photoName;
         Bitmap bitmap;
         String orient;
         try {
@@ -61,7 +61,7 @@ class BuildBitMap {
         try {
             exif = new ExifInterface(fullFileName);
         } catch (IOException e) {
-            Toast.makeText(mContext,"No photo information on\n"+nowPT.getPhotoName(), Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext,"No photo information on\n"+nowPT.photoName, Toast.LENGTH_LONG).show();
             return nowPT;
         }
         try {
@@ -98,7 +98,7 @@ class BuildBitMap {
         Bitmap sBitmap = Bitmap.createBitmap(bitmap, (width - sWidth)/2, (height - sHeight) /2, sWidth, sHeight);       // crop center
         int outWidth = sizeX * 8 / 18;   // smaller scale
         int outHeight = outWidth * sHeight / sWidth;
-        nowPT.setOrient(orient);
+        nowPT.orient = orient;
         nowPT.setSumNailMap(Bitmap.createScaledBitmap(sBitmap, outWidth, outHeight, false));
         return nowPT;
     }

@@ -6,6 +6,7 @@ import static com.urrecliner.phototag.Vars.copyPasteText;
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.makeFolderSumNail;
 import static com.urrecliner.phototag.Vars.nowDownLoading;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.nowPos;
@@ -28,7 +29,6 @@ import static com.urrecliner.phototag.Vars.typeNumber;
 import static com.urrecliner.phototag.Vars.utils;
 import static com.urrecliner.phototag.placeNearby.PlaceParser.pageToken;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,7 +39,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.location.Geocoder;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -53,8 +52,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -123,7 +120,7 @@ public class TagWithPlace extends AppCompatActivity {
         photoImage = findViewById(R.id.image);
         bitmap = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
         getPhotoExif(fileFullName);
-        orgPT.setOrient(orient);
+        orgPT.orient = orient;
         if (!orient.equals("1")) {
             if (orient.equals("6")) {
                 Matrix matrix = new Matrix();
@@ -171,6 +168,7 @@ public class TagWithPlace extends AppCompatActivity {
                 photoTags.add(nowPos, newPT);
                 photoAdapter.notifyItemInserted(nowPos);
                 finish();
+                makeFolderSumNail.makeReady();
             }
         });
         iVMark.setAlpha(fileFullName.getName().endsWith("_ha.jpg") ? 0.2f: 1f);
@@ -270,7 +268,7 @@ public class TagWithPlace extends AppCompatActivity {
         photoDao.delete(pt);
         utils.createPhotoFile(fullFolder, orgName, tgtName, bitmap, "1");
         pt.orient = "1";
-        pt.setChecked(false);
+        pt.isChecked = false;
         pt.photoName = tgtName;
         pt.sumNailMap = null;
         photoTags.add(nowPos, orgPT);
@@ -280,6 +278,7 @@ public class TagWithPlace extends AppCompatActivity {
         MediaScannerConnection.scanFile(mContext,
                 new String[]{new File (fullFolder, tgtName).toString()}, null, null);
         finish();
+        makeFolderSumNail.makeReady();
     }
 
     private void getLocationInfo() {
@@ -393,8 +392,8 @@ public class TagWithPlace extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.renameClock) {
-            orgPT.setChecked(false);
-            String orgName = orgPT.getPhotoName();
+            orgPT.isChecked = false;
+            String orgName = orgPT.photoName;
             File tgtFile;
             int C = 67; // 'C'
             do {
@@ -428,6 +427,7 @@ public class TagWithPlace extends AppCompatActivity {
                         MediaScannerConnection.scanFile(mContext, new String[]{file.toString()}, null, null);
                         photoDao.delete(orgPT);
                         photoTags.remove(pos);
+                        makeFolderSumNail.makeReady();
                         photoAdapter.notifyItemRemoved(nowPos);
                     }
                 })

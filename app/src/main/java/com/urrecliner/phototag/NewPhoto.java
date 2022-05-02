@@ -29,7 +29,7 @@ class NewPhoto {
         File orgFile = new File(orgPhoto.fullFolder, orgPhoto.photoName);
         long timeStamp = utils.getFileDate(orgFile);
         Bitmap bitmap = BitmapFactory.decodeFile(orgFile.getAbsolutePath());
-        String orient = orgPhoto.getOrient();
+        String orient = orgPhoto.orient;
         if (!orient.equals("1")) {
             Matrix matrix = new Matrix();
             int width = bitmap.getWidth();
@@ -48,7 +48,7 @@ class NewPhoto {
             }
             matrix.postRotate(degree);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, false);
-            newPhoto.setOrient("1");
+            newPhoto.orient = "1";
         }
         buildBitMap.init(mActivity, mContext, orient);
         String sFood = " ", sPlace = " ", sAddress = " ";

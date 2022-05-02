@@ -18,38 +18,19 @@ public class PhotoTag implements Cloneable {
 
     @NonNull
     @ColumnInfo (name = "photoName")    // 20220101_140159.jpg
-    public String photoName;
+    public String photoName;        // if orient == 9, last modified date
 
-    @ColumnInfo (name = "orient")  // 1-8
+    @ColumnInfo (name = "orient")  // 1-8       if orient == 9, then it is directory
     public String orient;
 
     public boolean isChecked;
+
     @ColumnInfo (name = "sumNailMap")
-    public String sumNailMap;
-
-//    public PhotoTag(String fullFolder, String photoName) {
-//        this.fullFolder = fullFolder;
-//        this.photoName = photoName;
-//        this.orient = "x";
-//        this.isChecked = false;
-//        this.sumNailMap = null;
-//    }
-//
-    public String getFullFolder() { return fullFolder; }
-    public void setFullFolder(String fullFolder) { this.fullFolder = fullFolder; }
-
-    public String getPhotoName() { return photoName; }
-    public void setPhotoName(String photoName) { this.photoName = photoName; }
-
-    public String getOrient() { return orient; }
-    public void setOrient(String orient) { this.orient = orient; }
+    public String sumNailMap;       // photo sumNail or directory sumNail
 
     public Bitmap getSumNailMap() { return (sumNailMap == null) ? null: utils.StringToBitMap(sumNailMap); }
     public void setSumNailMap(Bitmap sumNailMap) { this.sumNailMap = utils.BitMapToString(sumNailMap);
     }
-
-    public boolean isChecked() { return isChecked; }
-    public void setChecked(boolean checked) { isChecked = checked; }
 
     public PhotoTag clone() throws CloneNotSupportedException {
         return (PhotoTag) super.clone();

@@ -8,7 +8,7 @@ import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
-import static com.urrecliner.phototag.Vars.makeDirFolder;
+import static com.urrecliner.phototag.Vars.makeFolderSumNail;
 import static com.urrecliner.phototag.Vars.markTextInColor;
 import static com.urrecliner.phototag.Vars.markTextOutColor;
 import static com.urrecliner.phototag.Vars.multiMode;
@@ -20,7 +20,6 @@ import static com.urrecliner.phototag.Vars.photoView;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.sharedSpan;
 import static com.urrecliner.phototag.Vars.short2Folder;
-import static com.urrecliner.phototag.Vars.signatureMap;
 import static com.urrecliner.phototag.Vars.sizeX;
 import static com.urrecliner.phototag.Vars.spanWidth;
 import static com.urrecliner.phototag.Vars.squeezeDB;
@@ -79,14 +78,12 @@ public class MainActivity extends AppCompatActivity {
         buildDB = new BuildDB();
         newPhoto = new NewPhoto();
         buildBitMap = new BuildBitMap();
-        makeDirFolder = new MakeDirFolder();
-        makeDirFolder.makeReady();
+        makeFolderSumNail = new MakeFolderSumNail();
 
         photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
                 .fallbackToDestructiveMigration()   // scima changeable
                 .allowMainThreadQueries()           // main thread 에서 IO
                 .build();
-
         photoDao = photoDB.photoDao();
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -97,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         utils.getPreference();
         photoAdapter = new PhotoAdapter();
         photoView.setAdapter(photoAdapter);
+        makeFolderSumNail.init();
 
         fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
         markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
@@ -122,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
             int totCount = photoTags.size();
             for (int i = 0; i < totCount; i++) {
                 PhotoTag photoTag = photoTags.get(i);
-                if (photoTag.isChecked()) {
-                    photoTag.setChecked(false);
+                if (photoTag.isChecked) {
+                    photoTag.isChecked = false;
                     photoTags.set(i, photoTag);
                     photoAdapter.notifyItemChanged(i, photoTag);
                 }
@@ -134,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
         buildDB.fillUp(findViewById(R.id.main_layout));
+        if (!dirInfoReady)
+            makeFolderSumNail.makeReady();
         enableFolderIcon();
     }
 
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         else if (item.getItemId() == R.id.shareMultiPhoto) {
             ArrayList<File> arrayList = new ArrayList<>();
             for (PhotoTag pT: photoTags) {
-                if (pT.isChecked())
+                if (pT.isChecked)
                     arrayList.add(new File(pT.fullFolder, pT.photoName));
             }
             new SharePhoto().send(getApplicationContext(), arrayList);
@@ -248,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> arrayList = new ArrayList<>();
 
         for (PhotoTag photoTag: photoTags) {
-            if (photoTag.isChecked())
-                arrayList.add(photoTag.getPhotoName());
+            if (photoTag.isChecked)
+                arrayList.add(photoTag.photoName);
         }
         return arrayList;
     }

@@ -92,7 +92,7 @@ class BuildDB {
 
     static PhotoTag getPhotoWithMap(PhotoTag photoIn) {
 
-        PhotoTag photoOut = photoDao.getByPhotoName(photoIn.getFullFolder(), photoIn.getPhotoName());
+        PhotoTag photoOut = photoDao.getByPhotoName(photoIn.fullFolder, photoIn.photoName);
         if (photoOut == null) {
             photoOut = buildBitMap.updateSumNail(photoIn);
             photoDao.insert(photoOut);

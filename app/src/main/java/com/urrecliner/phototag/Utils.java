@@ -15,14 +15,12 @@ import static com.urrecliner.phototag.Vars.short2Folder;
 import static com.urrecliner.phototag.Vars.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Base64;
@@ -138,11 +136,22 @@ class Utils {
 
     ArrayList <String> getFilteredFileNames(String fullPath) {
         String[] shortFileNames = new File(fullPath).list((dir, name) ->
-                ((name.endsWith("jpg") || name.endsWith("JPG")) && !name.startsWith(".")));
+                ((name.endsWith("jpg") || name.endsWith("JPG")
+                        || name.endsWith("png") || name.endsWith("PNG")) && !name.startsWith(".")));
         ArrayList<String> sortedFileList = new ArrayList<>();
         if (shortFileNames != null)
             sortedFileList.addAll(Arrays.asList(shortFileNames));
         return sortedFileList;
+    }
+
+    int getPhotoCount(String fullPath) {
+        String[] shortFileNames = new File(fullPath).list((dir, name) ->
+                ((name.endsWith("jpg") || name.endsWith("JPG")
+                        || name.endsWith("png") || name.endsWith("PNG")) && !name.startsWith(".")));
+        if (shortFileNames != null)
+            return shortFileNames.length;
+        else
+            return 0;
     }
 
     private String getAppLabel(Context context) {

@@ -34,7 +34,6 @@ public class DirectoryActivity extends AppCompatActivity {
         dirView.setLayoutManager(SGL);
         dirView.addItemDecoration(new DividerItemDecoration(this, SGL.getOrientation()));
         dirView.setLayoutManager(SGL);
-
         directoryAdapter = new DirectoryAdapter();
         dirView.setAdapter(directoryAdapter);
     }

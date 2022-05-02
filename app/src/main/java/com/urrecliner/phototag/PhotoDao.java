@@ -19,7 +19,8 @@ public interface PhotoDao {
     List<PhotoTag> getAllPhotos();
 
     /* query all photos within one fullFolder */
-    @Query("SELECT photoName  FROM phototag WHERE fullFolder LIKE :fullFolder")
+    @Query("SELECT photoName  FROM phototag WHERE fullFolder LIKE :fullFolder AND "
+           + " orient < '9' ")
     List<String> getAllInFolder(String fullFolder);
 
     /* query unique directory list */
@@ -34,6 +35,11 @@ public interface PhotoDao {
     @Query("SELECT * FROM phototag WHERE fullFolder LIKE :fullFolder AND "
             + "photoName LIKE :photoName LIMIT 1 ")
     PhotoTag getByPhotoName(String fullFolder, String photoName);
+
+    /* query one folder by unique full path name */
+    /* if success photoname has lastModified */
+    @Query("SELECT * FROM phototag WHERE fullFolder LIKE :fullFolder LIMIT 1 ")
+    PhotoTag getFolderInfo(String fullFolder);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(PhotoTag photoTag);

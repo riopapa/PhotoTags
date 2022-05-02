@@ -1,24 +1,14 @@
 package com.urrecliner.phototag;
 
-import android.database.Cursor;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
-import static com.urrecliner.phototag.Vars.dirFolders;
-import static com.urrecliner.phototag.Vars.fullFolder;
-import static com.urrecliner.phototag.Vars.mContext;
+import static com.urrecliner.phototag.Vars.folderInfos;
+import static com.urrecliner.phototag.Vars.makeFolderSumNail;
 import static com.urrecliner.phototag.Vars.photoDao;
-import static com.urrecliner.phototag.Vars.photoTags;
-import static com.urrecliner.phototag.Vars.utils;
 
 class SqueezeDB {
 
@@ -27,10 +17,16 @@ class SqueezeDB {
     void squeeze() {
 
         List<String> allFolders = photoDao.getAllFolders();
+        for (int i = 0; i < allFolders.size();) {
+            if (allFolders.get(i).startsWith("@"))
+                allFolders.remove(i);
+            else
+                i++;
+        }
         for (String folderName: allFolders) {
             boolean isExist = false;
-            for (DirectoryFolder dirFolder: dirFolders) {
-                if (folderName.equals(dirFolder.getLongFolder())) {
+            for (FolderInfo dirFolder: folderInfos) {
+                if (folderName.equals(dirFolder.longFolder)) {
                     isExist = true;
                     break;
                 }
@@ -42,13 +38,13 @@ class SqueezeDB {
         }
 
         PhotoTag photoTag = new PhotoTag();
-        for (int i = 0; i < dirFolders.size(); i++) {
-            String fullFolder = dirFolders.get(i).getLongFolder();
+        for (int i = 0; i < folderInfos.size(); i++) {
+            String fullFolder = folderInfos.get(i).longFolder;
 
             List<Integer> dirCounts = photoDao.getRowCount(fullFolder);
             if (dirCounts.get(0) == 0)
                 continue;;
-            if (dirCounts.get(0) != dirFolders.get(i).getNumberOfPics()) {
+            if (dirCounts.get(0) != folderInfos.get(i).numberOfPics) {
                 List<String> daoPhotos = photoDao.getAllInFolder(fullFolder);
                 for (int p = 0; p < daoPhotos.size(); p++) {
                     String shortName = daoPhotos.get(p);
@@ -57,6 +53,7 @@ class SqueezeDB {
                         photoTag.fullFolder = fullFolder;
                         photoTag.photoName = shortName;
                         photoDao.delete(photoTag);
+                        makeFolderSumNail.makeReady();
                         Log.w("squeeze", "Delete " + fullFolder + " / " + shortName);
                     }
                 }

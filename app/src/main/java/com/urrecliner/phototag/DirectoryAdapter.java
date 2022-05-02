@@ -12,8 +12,7 @@ import android.widget.TextView;
 
 import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.dirActivity;
-import static com.urrecliner.phototag.Vars.dirInfoReady;
-import static com.urrecliner.phototag.Vars.dirFolders;
+import static com.urrecliner.phototag.Vars.folderInfos;
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.multiMode;
@@ -26,7 +25,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
 
     @Override
     public int getItemCount() {
-        return dirFolders.size();
+        return folderInfos.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -41,7 +40,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
             itemView.setOnClickListener(view -> {
                 int pos = getBindingAdapterPosition();
                 SharedPreferences.Editor editor = sharedPref.edit();
-                fullFolder = dirFolders.get(pos).getLongFolder();
+                fullFolder = folderInfos.get(pos).longFolder;
                 utils.setShortFolderNames(fullFolder);
                 editor.putString("fullFolder", fullFolder);
                 editor.apply();
@@ -50,8 +49,6 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
                 multiMode = false;
                 dirActivity.finish();
                 isNewFolder = true;
-//                Intent intent = new Intent(mContext, MainActivity.class);
-//                dirActivity.startActivity(intent);
             });
         }
     }
@@ -64,12 +61,12 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        DirectoryFolder df = dirFolders.get(position);
-        String folderName = df.getLongFolder();
+        FolderInfo df = folderInfos.get(position);
+        String folderName = df.longFolder;
         utils.setShortFolderNames(folderName);
         String s = short1Folder.equals("0") ? short2Folder: short1Folder + "\n" + short2Folder;
-        s +=  "("+df.getNumberOfPics()+")";
+        s +=  "("+df.numberOfPics+")";
         holder.tVInfo.setText(s);
-        holder.iVImage.setImageBitmap(df.getImageBitmap());
+        holder.iVImage.setImageBitmap(df.imageBitmap);
     }
 }
