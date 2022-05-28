@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         return arrayList;
     }
 
-    final long BACK_DELAY = 1500;
+    final long BACK_DELAY = 1400;
     long backKeyPressedTime;
     @Override
     public void onBackPressed() {
