@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         makeFolderSumNail = new MakeFolderSumNail();
 
         photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
-                .fallbackToDestructiveMigration()   // scima changeable
+                .fallbackToDestructiveMigration()   // schema changeable
                 .allowMainThreadQueries()           // main thread 에서 IO
                 .build();
         photoDao = photoDB.photoDao();
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         return arrayList;
     }
 
-    final long BACK_DELAY = 2000;
+    final long BACK_DELAY = 1500;
     long backKeyPressedTime;
     @Override
     public void onBackPressed() {

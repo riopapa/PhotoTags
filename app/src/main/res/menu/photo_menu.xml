@@ -24,11 +24,4 @@
         android:icon="@mipmap/trash"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/copyText"
-        android:icon="@mipmap/copy"
-        android:orderInCategory="100"
-        android:title="@string/copy_text"
-        app:showAsAction="always" />
-
 </menu>

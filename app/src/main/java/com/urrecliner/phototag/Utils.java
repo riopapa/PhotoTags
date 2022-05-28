@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Base64;
@@ -215,6 +216,8 @@ class Utils {
             file.delete();
         bitMap2File(bitmap, file);
         copyExif(folderName, inpName, outName, orientation);
+        MediaScannerConnection.scanFile(mContext,
+                new String[]{file.getPath()}, null, null);
     }
 
     private void bitMap2File(Bitmap bitmap, File file) {
@@ -223,8 +226,7 @@ class Utils {
             os = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
             os.close();
-            MediaScannerConnection.scanFile(mContext,
-                    new String[]{file.toString()}, null, null);
+
         } catch (IOException e) {
             utils.logE("ioException", e.toString());
             Toast.makeText(mActivity, e.toString(),Toast.LENGTH_LONG).show();
@@ -450,7 +452,7 @@ class Utils {
 
     String BitMapToString(Bitmap bitmap){
         ByteArrayOutputStream baos= new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        bitmap.compress(Bitmap.CompressFormat.PNG,99, baos);
         byte [] b = baos.toByteArray();
         return Base64.encodeToString(b, Base64.DEFAULT);
     }

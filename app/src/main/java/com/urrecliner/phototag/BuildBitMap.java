@@ -147,14 +147,14 @@ class BuildBitMap {
     private void markDateTime(long timeStamp, int width, int height, Canvas canvas) {
         final SimpleDateFormat sdfDate = new SimpleDateFormat("`yy/MM/dd(EEE)", Locale.KOREA);
         final SimpleDateFormat sdfHourMin = new SimpleDateFormat("HH:mm", Locale.KOREA);
-        int fontSize = (width>height) ? (width+height)/60 : (width+height)/80;  // date time
+        int fontSize = (width>height) ? (width+height)/45 : (width+height)/60;  // date time
         String dateTime = sdfDate.format(timeStamp);
-        int xPos = (width>height) ? width/10+fontSize: width/7+fontSize;
-        int yPos = (width>height) ? height/10: height/12;
+        int xPos = (width>height) ? width/8+fontSize: width/7+fontSize;
+        int yPos = (width>height) ? height/9: height/11;
         drawTextOnCanvas(canvas, dateTime, fontSize, xPos, yPos);
         yPos += fontSize;
         dateTime = sdfHourMin.format(timeStamp);
-        fontSize = fontSize * 7 / 8;
+        fontSize = fontSize * 8 / 9;
         drawTextOnCanvas(canvas, dateTime, fontSize, xPos, yPos);
     }
 

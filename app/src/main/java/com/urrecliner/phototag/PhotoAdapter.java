@@ -15,7 +15,6 @@ import static com.urrecliner.phototag.Vars.spanWidth;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -84,7 +83,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 //            Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.ARGB_8888, false);
 //            boolean checked = !photoTag.isChecked();
 //            iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
-            Intent intent = new Intent(mContext, TagWithPlace.class);
+            Intent intent = new Intent(mContext, TagPlaceActivity.class);
             mActivity.startActivity(intent);
         }
 

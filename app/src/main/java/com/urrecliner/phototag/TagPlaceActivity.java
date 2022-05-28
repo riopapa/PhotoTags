@@ -1,7 +1,6 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.byPlaceName;
-import static com.urrecliner.phototag.Vars.copyPasteGPS;
 import static com.urrecliner.phototag.Vars.copyPasteText;
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
@@ -12,8 +11,8 @@ import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.nowPos;
 import static com.urrecliner.phototag.Vars.photoAdapter;
 import static com.urrecliner.phototag.Vars.photoDao;
-import static com.urrecliner.phototag.Vars.photoView;
 import static com.urrecliner.phototag.Vars.photoTags;
+import static com.urrecliner.phototag.Vars.photoView;
 import static com.urrecliner.phototag.Vars.placeActivity;
 import static com.urrecliner.phototag.Vars.placeInfos;
 import static com.urrecliner.phototag.Vars.placeType;
@@ -52,6 +51,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,7 +69,7 @@ import java.util.TimerTask;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class TagWithPlace extends AppCompatActivity {
+public class TagPlaceActivity extends AppCompatActivity {
 
     ExifInterface exif = null;
     String strAddress = null, strPlace = null;
@@ -79,7 +79,7 @@ public class TagWithPlace extends AppCompatActivity {
     PhotoTag orgPT, newPT;
     File fileFullName;
     String orient;
-    Bitmap bitmap;
+    Bitmap bitmapImage;
     ImageView photoImage, sigImage;
 
     static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
@@ -118,27 +118,26 @@ public class TagWithPlace extends AppCompatActivity {
         if (!fileFullName.exists())
             return;
         photoImage = findViewById(R.id.image);
-        bitmap = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
+        photoImage.post(this::adjust_SignaturePos);
+        bitmapImage = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
         getPhotoExif(fileFullName);
         orgPT.orient = orient;
         if (!orient.equals("1")) {
             if (orient.equals("6")) {
                 Matrix matrix = new Matrix();
                 matrix.postRotate(90);
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+                bitmapImage = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, false);
                 orient = "1";
             }
         }
-        photoImage.setImageBitmap(bitmap);
+
+        photoImage.setImageBitmap(bitmapImage);
         sigImage = findViewById(R.id.signature);
         sigImage.setImageResource(sigColors[sharedSigNbr]);
-        sigImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sharedSigNbr++;
-                sharedSigNbr = sharedSigNbr % sigColors.length;
-                sigImage.setImageResource(sigColors[sharedSigNbr]);
-            }
+        sigImage.setOnClickListener(view -> {
+            sharedSigNbr++;
+            sharedSigNbr = sharedSigNbr % sigColors.length;
+            sigImage.setImageResource(sigColors[sharedSigNbr]);
         });
         PhotoViewAttacher pA;       // to enable zoom
         pA = new PhotoViewAttacher(photoImage);
@@ -154,7 +153,6 @@ public class TagWithPlace extends AppCompatActivity {
                 getPlaceByLatLng();
             }
         });
-//        iVPlace.setImageBitmap(utils.maskedIcon(typeIcons[typeNumber]));
         ivGetPlaces.setImageResource(typeIcons[typeNumber]);
 
         ImageView iVMark = findViewById(R.id.add_mark);
@@ -180,23 +178,32 @@ public class TagWithPlace extends AppCompatActivity {
         });
         iVPaste.setAlpha((copyPasteText.equals("")) ? 0.2f: 1f);
 
-        ImageView iVInfo = findViewById(R.id.getInformation);
+        ImageView iVCopy = findViewById(R.id.copyInfo);
+        iVCopy.setOnClickListener(view -> {
+            EditText etPlace = findViewById(R.id.placeAddress);
+            copyPasteText = etPlace.getText().toString();
+            Toast.makeText(mContext, "Text Copied\n" + copyPasteText, Toast.LENGTH_SHORT).show();
+            iVPaste.setAlpha(1f);
+            iVPaste.setEnabled(true);
+        });
+
+        ImageView iVInfo = findViewById(R.id.showInfo);
         iVInfo.setOnClickListener(view -> Toast.makeText(mContext, buildLongInfo(), Toast.LENGTH_LONG).show());
 
         ImageView iVRotateSave = findViewById(R.id.rotate_save);
         iVRotateSave.setOnClickListener(v -> save_rotatedPhoto());
-        iVRotateSave.setVisibility(View.INVISIBLE);
-
+        iVRotateSave.setAlpha(0.2f);
         ImageView ivRotate = findViewById(R.id.rotate);
         ivRotate.setOnClickListener(view -> {
             Matrix matrix = new Matrix();
             matrix.postRotate(-90);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-            photoImage.setImageBitmap(bitmap);
+            bitmapImage = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, false);
+            photoImage.setImageBitmap(bitmapImage);
             PhotoViewAttacher pA1;       // to enable zoom
             pA1 = new PhotoViewAttacher(photoImage);
             pA1.update();
-            iVRotateSave.setVisibility(View.VISIBLE);
+            ivRotate.setAlpha(1f);
+            adjust_SignaturePos();
         });
 
         final ImageView ivLeft = findViewById(R.id.imageL);
@@ -250,6 +257,16 @@ public class TagWithPlace extends AppCompatActivity {
 //        }
     }
 
+    private void adjust_SignaturePos() {
+        boolean landscape = bitmapImage.getWidth() > bitmapImage.getHeight();
+        int rightMargin = (landscape) ? 48: 200;
+        int topMargin = ((landscape) ? 380: 48);
+        ConstraintLayout.LayoutParams lP = (ConstraintLayout.LayoutParams) sigImage.getLayoutParams();
+        lP.topMargin = topMargin;
+        lP.rightMargin = rightMargin;
+        sigImage.setLayoutParams(lP);
+
+    }
     private Bitmap maskImage(Bitmap mainImage, boolean isRight) {
         Bitmap mask = BitmapFactory.decodeResource(getResources(),(isRight) ? R.mipmap.move_right: R.mipmap.move_left).copy(Bitmap.Config.ARGB_8888, true);
         Bitmap result = Bitmap.createScaledBitmap(mainImage, mask.getWidth()-16, mask.getHeight()-16, false);
@@ -266,7 +283,7 @@ public class TagWithPlace extends AppCompatActivity {
         String tgtName = orgName.substring(0,orgName.length()-4)+"R.jpg";
         pt.photoName = tgtName;
         photoDao.delete(pt);
-        utils.createPhotoFile(fullFolder, orgName, tgtName, bitmap, "1");
+        utils.createPhotoFile(fullFolder, orgName, tgtName, bitmapImage, "1");
         pt.orient = "1";
         pt.isChecked = false;
         pt.photoName = tgtName;
@@ -350,7 +367,7 @@ public class TagWithPlace extends AppCompatActivity {
                 "\nDevice: "+maker+" - "+model+"\nOrientation: "+ orient +
                 "\nLocation: "+latitude+", "+longitude+", "+altitude+
                 "\nDate Time: "+dateTimeFileName+
-                "\nSize: "+bitmap.getWidth()+" x "+bitmap.getHeight();
+                "\nSize: "+ bitmapImage.getWidth()+" x "+ bitmapImage.getHeight();
     }
 
     @Override
@@ -367,19 +384,9 @@ public class TagWithPlace extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        EditText etPlace = findViewById(R.id.placeAddress);
         orgPT = photoTags.get(nowPos);
 
-        if (item.getItemId() == R.id.copyText) {
-            copyPasteText = etPlace.getText().toString();
-            copyPasteGPS = latitude + ";" + longitude + ";" + altitude;
-            Toast.makeText(mContext, "Text Copied\n" + copyPasteText, Toast.LENGTH_SHORT).show();
-            ImageView iv = findViewById(R.id.pasteInfo);
-            iv.setAlpha(1f);
-            iv.setEnabled(true);
-            return true;
-        }
-        else if (item.getItemId() == R.id.sharePhoto) {
+        if (item.getItemId() == R.id.sharePhoto) {
             ArrayList<File> arrayList = new ArrayList<>();
             arrayList.add(fileFullName);
             new SharePhoto().send(getApplicationContext(), arrayList);
