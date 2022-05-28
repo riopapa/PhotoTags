@@ -341,7 +341,6 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
-
 // ↑ ↑ ↑ ↑ P E R M I S S I O N    RELATED /////// ↑ ↑ ↑
 
 }
