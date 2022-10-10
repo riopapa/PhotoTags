@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.urrecliner.phototag.placeNearby.PlaceInfo;
 import com.urrecliner.phototag.placeNearby.PlaceRetrieve;
 
+import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,13 +46,6 @@ public class SelectActivity extends AppCompatActivity {
                 if (!nowDownLoading) {
                     waitTimer.cancel();
                     if (!pageToken.equals(NO_MORE_PAGE)) {
-//                        EditText et = findViewById(R.id.placeAddress);
-//                        String placeName = et.getText().toString();
-//                        if (placeName != null && placeName.startsWith("?")) {
-//                            String[] placeNames = placeName.split("\n");
-//                            placeName = placeNames[0].substring(1);
-//                        } else
-//                            placeName = "";
                         new PlaceRetrieve(mContext, hLatitude, hLongitude, placeType, pageToken, sharedRadius, "");
                         new Timer().schedule(new TimerTask() {
                             public void run() {
@@ -74,10 +69,11 @@ public class SelectActivity extends AppCompatActivity {
 
         switch(sharedSort) {
             case "이름":
-                placeInfos.sort((arg0, arg1) -> arg0.getoName().compareTo(arg1.getoName()));
+                placeInfos.sort(Comparator.comparing(PlaceInfo::getoName));
                 break;
             case "거리":
-                placeInfos.sort((arg0, arg1) -> arg0.getDistance().compareTo(arg1.getDistance()));
+//                placeInfos.sort((arg0, arg1) -> arg0.getDistance().compareTo(arg1.getDistance()));
+                placeInfos.sort(Comparator.comparing(PlaceInfo::getDistance));
                 break;
             default:
         }

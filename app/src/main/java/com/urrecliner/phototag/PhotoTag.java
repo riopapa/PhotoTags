@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 
 @Entity (primaryKeys = {"fullFolder","photoName"})
 public class PhotoTag implements Cloneable {
@@ -15,6 +14,7 @@ public class PhotoTag implements Cloneable {
     @NonNull
     @ColumnInfo (name = "fullFolder")   // sdcard/DCIM/camera
     public String fullFolder;
+    // if fullFolder starts with @ then it means this if folder row
 
     @NonNull
     @ColumnInfo (name = "photoName")    // 20220101_140159.jpg
@@ -25,11 +25,11 @@ public class PhotoTag implements Cloneable {
 
     public boolean isChecked;
 
-    @ColumnInfo (name = "sumNailMap")
-    public String sumNailMap;       // photo sumNail or directory sumNail
+    @ColumnInfo (name = "thumbnail")
+    public String thumbnail;       // photo thumbnail or directory thumbnail
 
-    public Bitmap getSumNailMap() { return (sumNailMap == null) ? null: utils.StringToBitMap(sumNailMap); }
-    public void setSumNailMap(Bitmap sumNailMap) { this.sumNailMap = utils.BitMapToString(sumNailMap);
+    public Bitmap getThumbnail() { return (thumbnail == null) ? null: utils.StringToBitMap(thumbnail); }
+    public void setThumbnail(Bitmap thumbnail) { this.thumbnail = utils.BitMapToString(thumbnail);
     }
 
     public PhotoTag clone() throws CloneNotSupportedException {

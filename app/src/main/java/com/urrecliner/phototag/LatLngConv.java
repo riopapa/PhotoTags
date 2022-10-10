@@ -1,50 +1,46 @@
 package com.urrecliner.phototag;
 
-import android.location.Location;
-
-import java.util.Locale;
-
 public class LatLngConv {
 
-    static String latLng2String(double latitude, double longitude, double altitude) {
-        StringBuilder builder = new StringBuilder();
-
-        if (latitude < 0) {
-            builder.append("S ");
-        } else {
-            builder.append("N ");
-        }
-
-        String latitudeDegrees = Location.convert(Math.abs(latitude), Location.FORMAT_SECONDS);
-        String[] latitudeSplit = latitudeDegrees.split(":");
-        builder.append(latitudeSplit[0]);
-        builder.append("°");
-        builder.append(latitudeSplit[1]);
-        builder.append("'");
-        builder.append(latitudeSplit[2]);
-        builder.append("\"");
-
-        builder.append(" ");
-
-        if (longitude < 0) {
-            builder.append("W ");
-        } else {
-            builder.append("E ");
-        }
-
-        String longitudeDegrees = Location.convert(Math.abs(longitude), Location.FORMAT_SECONDS);
-        String[] longitudeSplit = longitudeDegrees.split(":");
-        builder.append(longitudeSplit[0]);
-        builder.append("°");
-        builder.append(longitudeSplit[1]);
-        builder.append("'");
-        builder.append(longitudeSplit[2]);
-        builder.append("\"");
-        builder.append(String.format(Locale.ENGLISH, " A %.1f", altitude));
-        //        nowLatLng = String.format(Locale.ENGLISH, "%.5f ; %.5f ; %.1f", latitude, longitude, altitude);
-
-        return builder.toString();
-    }
+//    static String latLng2String(double latitude, double longitude, double altitude) {
+//        StringBuilder builder = new StringBuilder();
+//
+//        if (latitude < 0) {
+//            builder.append("S ");
+//        } else {
+//            builder.append("N ");
+//        }
+//
+//        String latitudeDegrees = Location.convert(Math.abs(latitude), Location.FORMAT_SECONDS);
+//        String[] latitudeSplit = latitudeDegrees.split(":");
+//        builder.append(latitudeSplit[0]);
+//        builder.append("°");
+//        builder.append(latitudeSplit[1]);
+//        builder.append("'");
+//        builder.append(latitudeSplit[2]);
+//        builder.append("\"");
+//
+//        builder.append(" ");
+//
+//        if (longitude < 0) {
+//            builder.append("W ");
+//        } else {
+//            builder.append("E ");
+//        }
+//
+//        String longitudeDegrees = Location.convert(Math.abs(longitude), Location.FORMAT_SECONDS);
+//        String[] longitudeSplit = longitudeDegrees.split(":");
+//        builder.append(longitudeSplit[0]);
+//        builder.append("°");
+//        builder.append(longitudeSplit[1]);
+//        builder.append("'");
+//        builder.append(longitudeSplit[2]);
+//        builder.append("\"");
+//        builder.append(String.format(Locale.ENGLISH, " A %.1f", altitude));
+//        //        nowLatLng = String.format(Locale.ENGLISH, "%.5f ; %.5f ; %.1f", latitude, longitude, altitude);
+//
+//        return builder.toString();
+//    }
 
     static double DMS2GPS(String dmsString, String NEWS) {
         if (dmsString != null) {
@@ -76,16 +72,16 @@ public class LatLngConv {
             return 0;
     }
 
-    static String GPS2DMS(double latitude) {
-        latitude = Math.abs(latitude);
-        int degree = (int) latitude;
-        latitude *= 60;
-        latitude -= (degree * 60.0d);
-        int minute = (int) latitude;
-        latitude *= 60;
-        latitude -= (minute * 60.0d);
-        int second = (int) (latitude * 10000.d);
-        return degree + "/1," + minute + "/1," + second + "/10000";
-    }
+//    static String GPS2DMS(double latitude) {
+//        latitude = Math.abs(latitude);
+//        int degree = (int) latitude;
+//        latitude *= 60;
+//        latitude -= (degree * 60.0d);
+//        int minute = (int) latitude;
+//        latitude *= 60;
+//        latitude -= (minute * 60.0d);
+//        int second = (int) (latitude * 10000.d);
+//        return degree + "/1," + minute + "/1," + second + "/10000";
+//    }
 
 }

@@ -11,12 +11,16 @@ import java.util.List;
 
 @Dao
 public interface PhotoDao {
-    //    @Query("SELECT * FROM phototag")  // load all 은 안 하는 걸로
-//    List<PhotoTag> getAll();
+    /*
+     fullFolder : starts with "@" means folder(album) info
+        fullFolder : "@" + /storage/emulated/0/DCIM/Camera
+        photoName : folder lastModified timeStamp
+        orient : '9'
+     */
 
     /* query all photos within one fullFolder */
-    @Query("SELECT * FROM phototag ")
-    List<PhotoTag> getAllPhotos();
+//    @Query("SELECT * FROM phototag ")
+//    List<PhotoTag> getAllPhotos();
 
     /* query all photos within one fullFolder */
     @Query("SELECT photoName  FROM phototag WHERE fullFolder LIKE :fullFolder AND "
@@ -24,8 +28,8 @@ public interface PhotoDao {
     List<String> getAllInFolder(String fullFolder);
 
     /* query unique directory list */
-    @Query("SELECT DISTINCT fullFolder from phototag")
-    List<String> getAllFolders();
+    @Query("SELECT fullFolder from phototag WHERE fullFolder LIKE '%@%'")
+    List<String> getDaoFolders();
 
     /* query photo counts in one folder */
     @Query("SELECT COUNT(photoName) FROM phototag WHERE fullFolder LIKE :fullFolder")

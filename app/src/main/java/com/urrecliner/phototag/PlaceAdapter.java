@@ -1,17 +1,5 @@
 package com.urrecliner.phototag;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.urrecliner.phototag.placeNearby.PlaceInfo;
-
 import static com.urrecliner.phototag.Vars.iconNames;
 import static com.urrecliner.phototag.Vars.iconRaws;
 import static com.urrecliner.phototag.Vars.mActivity;
@@ -22,6 +10,16 @@ import static com.urrecliner.phototag.Vars.placeInfos;
 import static com.urrecliner.phototag.Vars.selectActivity;
 import static com.urrecliner.phototag.Vars.tvPlaceAddress;
 import static com.urrecliner.phototag.Vars.utils;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceHolder>  {
 

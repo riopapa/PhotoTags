@@ -1,6 +1,5 @@
 package com.urrecliner.phototag;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -17,8 +16,10 @@ import android.graphics.Typeface;
 
 import androidx.exifinterface.media.ExifInterface;
 import androidx.core.content.ContextCompat;
-import android.widget.Toast;
 
+import android.util.Log;
+
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -28,79 +29,87 @@ import static com.urrecliner.phototag.Vars.sharedAlpha;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.sharedSigNbr;
 import static com.urrecliner.phototag.Vars.sigColors;
-import static com.urrecliner.phototag.Vars.sizeX;
 
 class BuildBitMap {
 
     String sFood, sPlace, sAddress;
-    Activity activity;
     Context context;
-    String orient;
+    int outWidth, outHeight;
+    Bitmap thumbnail;
+    String orient = "1";
 
-    public void init(Activity activity, Context context, String orient) {
-        this.activity = activity;this.context = context;
-        this.orient = orient;
-    }
-
-    // build photoTag.sumName & update room db
-
-    PhotoTag updateSumNail(PhotoTag nowPT) {
-        ExifInterface exif;
-        String fullFileName = nowPT.fullFolder+"/"+nowPT.photoName;
-        Bitmap bitmap;
-        String orient;
-        try {
-            bitmap = BitmapFactory.decodeFile(fullFileName).copy(Bitmap.Config.RGB_565, false);
-        } catch (Exception e) {
-            Toast.makeText(mContext,fullFileName+" file error", Toast.LENGTH_LONG).show();
-            bitmap = BitmapFactory.decodeResource(mContext.getResources(), sigColors[sharedSigNbr]).copy(Bitmap.Config.RGB_565, false);
-        }
-        assert bitmap != null;
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
+    PhotoTag updateThumbnail(PhotoTag nowPT) {
+        ExifInterface exif = null;
+        String fullFileName = nowPT.fullFolder+nowPT.photoName;
+        orient = "1";
         try {
             exif = new ExifInterface(fullFileName);
-        } catch (IOException e) {
-            Toast.makeText(mContext,"No photo information on\n"+nowPT.photoName, Toast.LENGTH_LONG).show();
-            return nowPT;
-        }
-        try {
             orient = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-        } catch (Exception e) { orient = ""; }
-        if (orient.equals("0"))
+        } catch (IOException e) {
             orient = "1";
-        if (!orient.equals("1")) {
-            Matrix matrix = new Matrix();
-            switch (orient) {
-                case "8":
-                    matrix.postRotate(-90);
-                    break;
-                case "6":
-                    matrix.postRotate(90);
-                    break;
-                case "3":
-                    matrix.postRotate(180);
-                    break;
-            }
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-            width = bitmap.getWidth();
-            height = bitmap.getHeight();
+        }
+        if (exif != null) {
+            thumbnail = loadThumbnail(exif);
+            if (thumbnail == null)
+                thumbnail = makeThumbnail(fullFileName);
         }
 
-        /* crop center image only */
+        int degree = 0;
+        switch (orient) {
+            case "8":
+                degree = -90; // -90;
+                break;
+            case "6":
+                degree = 90;
+                break;
+            case "3":
+                if (outWidth > outHeight) {
+                    degree = -90;
+                }
+                break;
+        }
+        if (degree != 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(degree);
+            thumbnail = Bitmap.createBitmap(thumbnail, 0, 0, outWidth, outHeight, matrix, false);
+        }
+
+        nowPT.orient = orient;
+        nowPT.setThumbnail(thumbnail);
+        return nowPT;
+    }
+
+    Bitmap loadThumbnail(ExifInterface exif) {
+
+        byte[] imageData=exif.getThumbnail();
+        if (imageData == null || imageData.length < 1)
+            return null;
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+        outWidth = bitmap.getWidth();
+        outHeight = bitmap.getHeight();
+        return bitmap;
+    }
+
+    Bitmap makeThumbnail(String fileName) {
+
+        Bitmap fullBitmap = BitmapFactory.decodeFile(new File(fileName).getAbsolutePath())
+                .copy(Bitmap.Config.RGB_565, false);
+
+        int width = fullBitmap.getWidth();
+        int height = fullBitmap.getHeight();
         int sWidth = width * 14/16;
         int sHeight = height * 14/16;
 
         if (width < height) { // if portrait crop height a little more
             sHeight = height * 13/16;
         }
+        fullBitmap = Bitmap.createBitmap(fullBitmap, (width - sWidth)/2, (height - sHeight) /2,
+                sWidth, sHeight);
+        outWidth = (sWidth> sHeight) ? 500: 288; // to fit with normal thumbnail sizeX * 6 / 18;   // smaller scale
+        outHeight = outWidth * sHeight / sWidth;
+        Log.w("makeThumbnail", fileName+" "+outWidth+" x "+outHeight);
+        return Bitmap.createScaledBitmap(fullBitmap, outWidth, outHeight, false);       // crop center
 
-        Bitmap sBitmap = Bitmap.createBitmap(bitmap, (width - sWidth)/2, (height - sHeight) /2, sWidth, sHeight);       // crop center
-        int outWidth = sizeX * 8 / 18;   // smaller scale
-        int outHeight = outWidth * sHeight / sWidth;
-        nowPT.orient = orient;
-        nowPT.setSumNailMap(Bitmap.createScaledBitmap(sBitmap, outWidth, outHeight, false));
-        return nowPT;
     }
 
     Bitmap makeChecked(Bitmap photoMap) {
@@ -125,8 +134,9 @@ class BuildBitMap {
         return outMap;
     }
 
-    Bitmap markDateLocSignature(Bitmap photoMap, long timeStamp, String food, String place, String address) {
+    Bitmap addDateLocSignature(Context context, Bitmap photoMap, long timeStamp, String food, String place, String address) {
 
+        this.context = context;
         int width = photoMap.getWidth();
         int height = photoMap.getHeight();
         Bitmap newMap = Bitmap.createBitmap(width, height, photoMap.getConfig());
@@ -172,7 +182,7 @@ class BuildBitMap {
 
         int fontSize = (width>height) ? (height + width) / 50: (height + width) / 60;
         int xPos = width / 2;
-        int yPos = (width>height) ? height - fontSize*2: height - fontSize*2;
+        int yPos = (width>height) ? height - fontSize*2: height - fontSize*2+4;
         yPos = drawTextOnCanvas(canvas, sAddress, fontSize, xPos, yPos);
         fontSize = fontSize * 12 / 10;  // Place
         yPos -= fontSize + fontSize / 3;
@@ -216,7 +226,7 @@ class BuildBitMap {
         paint.setTextSize(textSize);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth((int)(textSize/4+3));
+        paint.setStrokeWidth(textSize/4+3);
         paint.setTypeface(mContext.getResources().getFont(R.font.nanumbarungothic));
         canvas.drawText(text, xPos, yPos, paint);
 

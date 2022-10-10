@@ -1,21 +1,19 @@
 package com.urrecliner.phototag;
 
-import android.content.Intent;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-
-import java.io.File;
-
 import static com.urrecliner.phototag.Vars.fabUndo;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
 import static com.urrecliner.phototag.Vars.photoAdapter;
 import static com.urrecliner.phototag.Vars.photoTags;
+
+import android.media.MediaScannerConnection;
+import android.os.AsyncTask;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import java.io.File;
 
 class DeleteMulti {
 
@@ -75,13 +73,10 @@ class DeleteMulti {
             msg.append(deleteCount);
             msg.append(" photos deleted");
             Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
-            mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    fabUndo.setVisibility(View.INVISIBLE);
-                    MenuItem item = mainMenu.findItem(R.id.action_Delete);
-                    item.setVisible(false);
-                }
+            mActivity.runOnUiThread(() -> {
+                fabUndo.setVisibility(View.INVISIBLE);
+                MenuItem item = mainMenu.findItem(R.id.action_Delete);
+                item.setVisible(false);
             });
         }
     }

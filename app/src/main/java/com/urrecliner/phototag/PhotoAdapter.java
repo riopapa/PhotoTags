@@ -44,45 +44,32 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         ViewHolder(final View itemView) {
             super(itemView);
             tVInfo = itemView.findViewById(R.id.info);
-            tVInfo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (multiMode)
-                        toggleCheckBox(getBindingAdapterPosition());
-                    else
-                        loadTagActivity();
-                }
+            tVInfo.setOnClickListener(view -> {
+                if (multiMode)
+                    toggleCheckBox(getBindingAdapterPosition());
+                else
+                    loadTagActivity();
             });
 
             iVImage = itemView.findViewById(R.id.image);
-            iVImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (multiMode)
-                        toggleCheckBox(getAbsoluteAdapterPosition());
-                    else
-                        loadTagActivity();
-                }
+            iVImage.setOnClickListener(view -> {
+                if (multiMode)
+                    toggleCheckBox(getAbsoluteAdapterPosition());
+                else
+                    loadTagActivity();
             });
 
-            iVImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if (multiMode)
-                        loadTagActivity();
-                    else
-                        toggleCheckBox(getAbsoluteAdapterPosition());
-                    return true;
-                }
+            iVImage.setOnLongClickListener(view -> {
+                if (multiMode)
+                    loadTagActivity();
+                else
+                    toggleCheckBox(getAbsoluteAdapterPosition());
+                return true;
             });
         }
 
         private void loadTagActivity() {
             nowPos = getAbsoluteAdapterPosition();
-//            PhotoTag photoTag = photoTags.get(nowPos);
-//            Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.ARGB_8888, false);
-//            boolean checked = !photoTag.isChecked();
-//            iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
             Intent intent = new Intent(mContext, TagPlaceActivity.class);
             mActivity.startActivity(intent);
         }
@@ -93,7 +80,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             fabUndo.setVisibility(View.VISIBLE);
             PhotoTag photoTag = photoTags.get(position);
             String shortName = photoTag.photoName;
-            Bitmap photoMap = photoTag.getSumNailMap().copy(Bitmap.Config.RGB_565, false);
+            Bitmap photoMap = photoTag.getThumbnail().copy(Bitmap.Config.RGB_565, false);
             boolean checked = !photoTag.isChecked;
             iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
             iVImage.setBackgroundColor(checked ? 0x7caee2dc:0xffffffff);
@@ -124,10 +111,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         PhotoTag nowPT = photoTags.get(position);
-        Bitmap photoMap = nowPT.getSumNailMap();
+        Bitmap photoMap = nowPT.getThumbnail();
         if (photoMap == null) {
             nowPT = BuildDB.getPhotoWithMap(nowPT);
-            photoMap = nowPT.getSumNailMap();
+            photoMap = nowPT.getThumbnail();
         }
 
         String photoName = nowPT.photoName;

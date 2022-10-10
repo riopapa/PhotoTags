@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.dirActivity;
-import static com.urrecliner.phototag.Vars.folderInfos;
+import static com.urrecliner.phototag.Vars.albumFolders;
 import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.multiMode;
@@ -25,7 +25,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
 
     @Override
     public int getItemCount() {
-        return folderInfos.size();
+        return albumFolders.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -40,7 +40,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
             itemView.setOnClickListener(view -> {
                 int pos = getBindingAdapterPosition();
                 SharedPreferences.Editor editor = sharedPref.edit();
-                fullFolder = folderInfos.get(pos).longFolder;
+                fullFolder = albumFolders.get(pos).longFolder;
                 utils.setShortFolderNames(fullFolder);
                 editor.putString("fullFolder", fullFolder);
                 editor.apply();
@@ -61,7 +61,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        FolderInfo df = folderInfos.get(position);
+        AlbumInfo df = albumFolders.get(position);
         String folderName = df.longFolder;
         utils.setShortFolderNames(folderName);
         String s = short1Folder.equals("0") ? short2Folder: short1Folder + "\n" + short2Folder;

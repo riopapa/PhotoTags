@@ -73,7 +73,6 @@ public class SettingsActivity extends AppCompatActivity  {
                 sharedAlpha = newValue.toString();
                 return true;
             });
-
         }
     }
 

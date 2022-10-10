@@ -2,7 +2,7 @@ package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.directoryAdapter;
-import static com.urrecliner.phototag.Vars.folderInfos;
+import static com.urrecliner.phototag.Vars.albumFolders;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.sizeX;
@@ -17,6 +17,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,10 +26,10 @@ import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MakeFolderSumNail {
+public class MakeFolderThumbnail {
 
     void init() {
-        folderInfos = new ArrayList<>();
+        albumFolders = new ArrayList<>();
         ArrayList<String> picPaths = new ArrayList<>();
         Uri allImagesUri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { MediaStore.Images.ImageColumns.DATA};
@@ -43,12 +44,12 @@ public class MakeFolderSumNail {
                 String longFolder =  fullName.replace(fileName,"");    // remove file name
                 if (!picPaths.contains(longFolder)) {
                     picPaths.add(longFolder);
-                    FolderInfo fi = new FolderInfo();
+                    AlbumInfo fi = new AlbumInfo();
                     fi.longFolder = longFolder;
                     fi.lastModified = new File(longFolder).lastModified();
                     fi.imageBitmap = null;
-                    fi.numberOfPics = 0;
-                    folderInfos.add(fi);
+                    fi.numberOfPics = utils.getPhotoCount(longFolder);
+                    albumFolders.add(fi);
                 }
             }while(cursor.moveToNext());
             cursor.close();
@@ -57,9 +58,9 @@ public class MakeFolderSumNail {
             e.printStackTrace();
         }
 
-        Collections.sort(folderInfos, new Comparator<FolderInfo>() {
+        Collections.sort(albumFolders, new Comparator<AlbumInfo>() {
             @Override
-            public int compare(FolderInfo lhs, FolderInfo rhs) {
+            public int compare(AlbumInfo lhs, AlbumInfo rhs) {
                 return lhs.longFolder.compareTo(rhs.longFolder);
             }
         });
@@ -77,26 +78,28 @@ public class MakeFolderSumNail {
         ArrayList<String> photoNames;
         @Override
         protected String doInBackground(String... inputParams) {
-            if (folderInfos != null) {
-                for (int i = 0; i < folderInfos.size(); i++) {
-                    FolderInfo folderInfo = folderInfos.get(i);
-                    if (folderInfo.imageBitmap == null) {
-                        String realFolderName = folderInfo.longFolder;
-                        PhotoTag folderRec = photoDao.getFolderInfo("@"+folderInfo.longFolder);
-                        if (folderRec == null || Long.parseLong(folderRec.photoName) != folderInfo.lastModified) {
-                            folderInfo = updateFolderBitMap(folderInfo, folderRec);
+            if (albumFolders != null) {
+                for (int i = 0; i < albumFolders.size(); i++) {
+                    AlbumInfo album = albumFolders.get(i);
+                    int photoCount = utils.getPhotoCount(album.longFolder);
+                    PhotoTag folderTag = photoDao.getFolderInfo("@"+album.longFolder);
+                    if (album.imageBitmap == null || folderTag == null || photoCount != album.numberOfPics) {
+                        if (folderTag == null || Long.parseLong(folderTag.photoName) != album.lastModified) {
+                            Log.w("dirTask","make/update folder image >> "+album.longFolder);
+                            album = updateFolderBitMap(album, folderTag);
+                            album.numberOfPics = utils.getPhotoCount(album.longFolder);
                         } else {
-                            folderInfo.imageBitmap = utils.StringToBitMap(folderRec.sumNailMap);
-                            folderInfo.numberOfPics = utils.getPhotoCount(realFolderName);
+                            album.imageBitmap = utils.StringToBitMap(folderTag.thumbnail);
+                            album.numberOfPics = photoCount;
                         }
                     }
-                    folderInfos.set(i, folderInfo);
+                    albumFolders.set(i, album);
                 }
             }
             return "";
         }
 
-        private FolderInfo updateFolderBitMap(FolderInfo fi, PhotoTag pt) {
+        private AlbumInfo updateFolderBitMap(AlbumInfo fi, PhotoTag pt) {
             if (pt != null)
                 photoDao.delete(pt);
             String realFolder = fi.longFolder;
@@ -124,10 +127,10 @@ public class MakeFolderSumNail {
                 }
                 fi.imageBitmap = buildOneDirImage(photo4);
                 pt = new PhotoTag();
-                pt.fullFolder = "@" + fi.longFolder;
+                pt.fullFolder = "@"+ fi.longFolder;
                 pt.photoName = ""+fi.lastModified;
                 pt.isChecked = false;
-                pt.sumNailMap = utils.BitMapToString(fi.imageBitmap);
+                pt.thumbnail = utils.BitMapToString(fi.imageBitmap);
                 pt.orient = "9";  // 9 means it is directory folder
                 photoDao.insert(pt);
             }

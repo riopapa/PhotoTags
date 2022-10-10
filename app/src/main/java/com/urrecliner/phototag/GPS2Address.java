@@ -25,7 +25,7 @@ public class GPS2Address {
                 String SState = address.getSubAdminArea();
                 String State = address.getAdminArea();
                 Feature = (Feature == null) ? noInfo : Feature;
-                Thorough = (Thorough == null) ? noInfo : Thorough;  // Kakakaua Avernue
+                Thorough = (Thorough == null) ? noInfo : Thorough;  // thisName Avenue
                 SubLocality = (SubLocality == null) ? noInfo : SubLocality; // 분당구
                 Locality = (Locality == null) ? noInfo : Locality;  // Honolulu, 성남시
                 SState = (SState == null) ? noInfo : SState;

@@ -25,7 +25,6 @@ public class Vars {
 
     static PhotoAdapter photoAdapter;
     static DirectoryAdapter directoryAdapter;
-    static Bitmap signatureMap;
     static RecyclerView photoView;
 
     static PhotoDataBase photoDB;
@@ -35,8 +34,8 @@ public class Vars {
     static Utils utils;
     static SqueezeDB squeezeDB;
     static BuildDB buildDB;
-    static MakeFolderSumNail makeFolderSumNail;
-    static NewPhoto newPhoto;
+    static MakeFolderThumbnail makeFolderThumbnail;
+    static MakeNewPhoto makeNewPhoto;
     static BuildBitMap buildBitMap;
     static ColorDraw colorDraw;
 
@@ -47,13 +46,12 @@ public class Vars {
     static String nowPlace, nowAddress;
     static int spanWidth, sizeX;
     static String copyPasteText = "";
-    static String copyPasteGPS;
     static boolean dirInfoReady = false;
     static boolean isNewFolder = true;
 
     static boolean multiMode = false;
 //    static List<Photo> photos = null;
-    static ArrayList<FolderInfo> folderInfos = null;
+    static ArrayList<AlbumInfo> albumFolders = null;
 
     static Menu mainMenu;
 
@@ -67,7 +65,6 @@ public class Vars {
     static int markTextOutColor;
     static TextView tvPlaceAddress;
     static String byPlaceName = "";
-    static MenuItem menuItem;
     static FloatingActionButton fabUndo;
 
     /* --- shared Preference **/

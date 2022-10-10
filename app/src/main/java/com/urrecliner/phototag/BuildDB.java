@@ -27,7 +27,7 @@ class BuildDB {
         isCanceled = false;
         mainLayout = view;
         try {
-            new buildSumNailDB().execute("start");
+            new buildThumbnailDB().execute("start");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,12 +41,12 @@ class BuildDB {
         }
     }
 
-    static class buildSumNailDB extends AsyncTask<String, String, String> {
+    static class buildThumbnailDB extends AsyncTask<String, String, String> {
 
         @Override
         protected void onPreExecute() {
             photoView.setBackgroundColor(Color.CYAN);
-            String s = "Building SumNails for "+photoTags.size()+" photos";
+            String s = "Building thumbnails for "+photoTags.size()+" photos";
             snackBar = Snackbar.make(mainLayout, s, Snackbar.LENGTH_INDEFINITE);
             snackBar.setAction("Hide", v -> {
                 snackBar.dismiss();
@@ -65,7 +65,7 @@ class BuildDB {
                     break;
                 try {
                     PhotoTag photoTag = photoTags.get(pos);
-                    if (photoTag.getSumNailMap() == null) {
+                    if (photoTag.thumbnail == null) {
                         photoTag = getPhotoWithMap(photoTag);
                         photoTags.set(pos, photoTag);
                         publishProgress(SAY_COUNT);
@@ -94,12 +94,12 @@ class BuildDB {
 
         PhotoTag photoOut = photoDao.getByPhotoName(photoIn.fullFolder, photoIn.photoName);
         if (photoOut == null) {
-            photoOut = buildBitMap.updateSumNail(photoIn);
+            photoOut = buildBitMap.updateThumbnail(photoIn);
             photoDao.insert(photoOut);
             return photoOut;
         }
-        if (photoOut.getSumNailMap() == null) {
-            photoOut = buildBitMap.updateSumNail(photoIn);
+        if (photoOut.getThumbnail() == null) {
+            photoOut = buildBitMap.updateThumbnail(photoIn);
             photoDao.update(photoOut);
             return photoOut;
         }

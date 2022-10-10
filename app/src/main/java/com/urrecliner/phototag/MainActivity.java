@@ -8,7 +8,7 @@ import static com.urrecliner.phototag.Vars.isNewFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.mainMenu;
-import static com.urrecliner.phototag.Vars.makeFolderSumNail;
+import static com.urrecliner.phototag.Vars.makeFolderThumbnail;
 import static com.urrecliner.phototag.Vars.markTextInColor;
 import static com.urrecliner.phototag.Vars.markTextOutColor;
 import static com.urrecliner.phototag.Vars.multiMode;
@@ -23,7 +23,7 @@ import static com.urrecliner.phototag.Vars.short2Folder;
 import static com.urrecliner.phototag.Vars.sizeX;
 import static com.urrecliner.phototag.Vars.spanWidth;
 import static com.urrecliner.phototag.Vars.squeezeDB;
-import static com.urrecliner.phototag.Vars.newPhoto;
+import static com.urrecliner.phototag.Vars.makeNewPhoto;
 import static com.urrecliner.phototag.Vars.utils;
 
 import android.app.Dialog;
@@ -76,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         askPermission();
         squeezeDB = new SqueezeDB();
         buildDB = new BuildDB();
-        newPhoto = new NewPhoto();
+        makeNewPhoto = new MakeNewPhoto();
         buildBitMap = new BuildBitMap();
-        makeFolderSumNail = new MakeFolderSumNail();
+        makeFolderThumbnail = new MakeFolderThumbnail();
 
         photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
                 .fallbackToDestructiveMigration()   // schema changeable
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         utils.getPreference();
         photoAdapter = new PhotoAdapter();
         photoView.setAdapter(photoAdapter);
-        makeFolderSumNail.init();
+        makeFolderThumbnail.init();
 
         fullFolder = sharedPref.getString("fullFolder", new File(Environment.getExternalStorageDirectory(),"DCIM/Camera").toString());
         markTextInColor = sharedPref.getInt("markTextInColor", ContextCompat.getColor(mContext, R.color.markInColor));
@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.w("onResume"," started "+fullFolder);
         utils.setShortFolderNames(fullFolder);
         utils.showFolder(this.getSupportActionBar());
 
@@ -133,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         });
         buildDB.fillUp(findViewById(R.id.main_layout));
         if (!dirInfoReady)
-            makeFolderSumNail.makeReady();
+            makeFolderThumbnail.makeReady();
         enableFolderIcon();
     }
 
@@ -196,8 +195,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (item.getItemId() == R.id.action_Directory) {
             if (dirInfoReady) {
-                intent = new Intent(this, DirectoryActivity.class);
-                startActivity(intent);
+                    jump2Directory();
             } else {
                 Toast.makeText(mContext,"Wait till directory ready", Toast.LENGTH_LONG).show();
             }
@@ -254,14 +252,13 @@ public class MainActivity extends AppCompatActivity {
         return arrayList;
     }
 
-    final long BACK_DELAY = 1402;
+    final long BACK_DELAY = 500;
     long backKeyPressedTime;
     @Override
     public void onBackPressed() {
 
         if(System.currentTimeMillis()<backKeyPressedTime+BACK_DELAY){
             buildDB.cancel();
-            squeezeDB.cancel();
             finish();
             new Timer().schedule(new TimerTask() {
                 public void run() {
@@ -269,12 +266,21 @@ public class MainActivity extends AppCompatActivity {
                     android.os.Process.killProcess(android.os.Process.myPid());
                     System.exit(0);
                 }
-            }, 500);
+            }, 100);
+        } else {
+            Toast.makeText(this, "Press BackKey again to quit",Toast.LENGTH_SHORT).show();
+            backKeyPressedTime = System.currentTimeMillis();
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (dirInfoReady)
+                    jump2Directory();
+            }, BACK_DELAY);
         }
-        Toast.makeText(this, "Press BackKey again to quit",Toast.LENGTH_SHORT).show();
-        backKeyPressedTime = System.currentTimeMillis();
     }
 
+    void jump2Directory() {
+        Intent intent = new Intent(this, DirectoryActivity.class);
+        startActivity(intent);
+    }
 
     // ↓ ↓ ↓ P E R M I S S I O N   RELATED /////// ↓ ↓ ↓ ↓  BEST CASE 20/09/27 with no lambda
     private final static int ALL_PERMISSIONS_RESULT = 101;
@@ -292,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
         permissionsToRequest = findUnAskedPermissions();
         if (permissionsToRequest.size() != 0) {
-            requestPermissions((String[]) permissionsToRequest.toArray(new String[0]),
+            requestPermissions( permissionsToRequest.toArray(new String[0]),
 //            requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
                     ALL_PERMISSIONS_RESULT);
         }

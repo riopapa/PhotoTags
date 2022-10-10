@@ -1,28 +1,5 @@
 package com.urrecliner.phototag;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
 import static com.urrecliner.phototag.Vars.colorAlpha;
 import static com.urrecliner.phototag.Vars.colorDraw;
 import static com.urrecliner.phototag.Vars.colorPlate;
@@ -33,6 +10,28 @@ import static com.urrecliner.phototag.Vars.markTextInColor;
 import static com.urrecliner.phototag.Vars.markTextOutColor;
 import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.utils;
+
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MotionEvent;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 public class ColorActivity extends AppCompatActivity {
 
@@ -58,55 +57,43 @@ public class ColorActivity extends AppCompatActivity {
         tvText = findViewById(R.id.colorText);
         tvOutline = findViewById(R.id.colorOutline);
 
-        tvText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                modeIn = true;
-                workColor = currInColor;
-                colorRGB = currInColor;
-                showColorPlain();
-            }
+        tvText.setOnClickListener(view -> {
+            modeIn = true;
+            workColor = currInColor;
+            colorRGB = currInColor;
+            showColorPlain();
         });
 
-        tvOutline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                modeIn = false;
-                workColor = currOutColor;
-                colorRGB = currOutColor;
-                showColorPlain();
-            }
+        tvOutline.setOnClickListener(view -> {
+            modeIn = false;
+            workColor = currOutColor;
+            colorRGB = currOutColor;
+            showColorPlain();
         });
 
         TextView tvCancel = findViewById(R.id.cancel);
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (modeIn)
-                    currInColor = markTextInColor;
-                else
-                    currOutColor = markTextOutColor;
-                workColor = (modeIn) ? currInColor : currOutColor;
-                colorRGB = (modeIn) ? currInColor : currOutColor;
-                showColorPlain();
-            }
+        tvCancel.setOnClickListener(view -> {
+            if (modeIn)
+                currInColor = markTextInColor;
+            else
+                currOutColor = markTextOutColor;
+            workColor = (modeIn) ? currInColor : currOutColor;
+            colorRGB = (modeIn) ? currInColor : currOutColor;
+            showColorPlain();
         });
 
         TextView tvSelect = findViewById(R.id.select);
-        tvSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (modeIn) {
-                    currInColor = workColor;
-                }
-                else {
-                    currOutColor = workColor;
-                }
-                modeIn = !modeIn;
-                workColor = (modeIn) ? currInColor:currOutColor;
-                colorRGB = workColor;
-                showColorPlain();
+        tvSelect.setOnClickListener(view -> {
+            if (modeIn) {
+                currInColor = workColor;
             }
+            else {
+                currOutColor = workColor;
+            }
+            modeIn = !modeIn;
+            workColor = (modeIn) ? currInColor:currOutColor;
+            colorRGB = workColor;
+            showColorPlain();
         });
 
         colorAlpha = findViewById(R.id.barAlpha);
@@ -146,41 +133,25 @@ public class ColorActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
         });
 
-        colorPlate.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                if (action == MotionEvent.ACTION_UP) {
-                    workColor = getTouchColor((ImageView) v, event);
-                    showColorPlain();
-                }
-                return true;
-            }
-        });
-        colorPlate.post(new Runnable() {
-            @Override
-            public void run() {
+        colorPlate.setOnTouchListener((v, event) -> {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_UP) {
+                workColor = getTouchColor((ImageView) v, event);
                 showColorPlain();
             }
+            return true;
         });
-        colorRange.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                if (action == MotionEvent.ACTION_UP) {
-                    colorRGB = getTouchColor((ImageView) v, event);
-                    utils.log("RGB","color "+colorRGB);
-                    showColorPlain();
-                }
-                return true;
+        colorPlate.post(this::showColorPlain);
+        colorRange.setOnTouchListener((v, event) -> {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_UP) {
+                colorRGB = getTouchColor((ImageView) v, event);
+                utils.log("RGB","color "+colorRGB);
+                showColorPlain();
             }
+            return true;
         });
-        colorRange.post(new Runnable() {
-            @Override
-            public void run() {
-                colorDraw.drawColorRange();
-            }
-        });
+        colorRange.post(() -> colorDraw.drawColorRange());
 
     }
 

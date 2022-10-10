@@ -71,7 +71,7 @@ Run this program, and it shows all the photos in your Camera directory.
 
 - By clicking one directory photo, main activity will be displayed.
 
-- Making sumNails will be processed at the background with showing progress at the bottom
+- Making thumbnails will be processed at the background with showing progress at the bottom
 
 
 ## What I have learned with this app

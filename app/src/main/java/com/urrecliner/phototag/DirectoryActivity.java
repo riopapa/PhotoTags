@@ -1,16 +1,15 @@
 package com.urrecliner.phototag;
 
-import android.content.Intent;
+import static com.urrecliner.phototag.Vars.dirActivity;
+import static com.urrecliner.phototag.Vars.directoryAdapter;
+
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import static com.urrecliner.phototag.Vars.dirActivity;
-import static com.urrecliner.phototag.Vars.directoryAdapter;
-import static com.urrecliner.phototag.Vars.mContext;
 
 public class DirectoryActivity extends AppCompatActivity {
 
@@ -20,8 +19,6 @@ public class DirectoryActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-//        Intent intent = new Intent(mContext, MainActivity.class);
-//        startActivity(intent);
     }
 
     @Override
