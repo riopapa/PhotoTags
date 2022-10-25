@@ -21,13 +21,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.preference.PreferenceManager;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -193,12 +193,12 @@ class Utils {
         }
     }
 
-    void createPhotoFile(String folderName, String inpName, String outName, Bitmap bitmap, String orientation) {
+    void createPhotoFile(String folderName, String inpName, String outName, Bitmap bitmap) {
         File file = new File(folderName, outName);
         if (file.exists())
             file.delete();
         bitMap2File(bitmap, file);
-        copyExif(folderName, inpName, outName, orientation);
+        copyExif(folderName, inpName, outName);
         MediaScannerConnection.scanFile(mContext,
                 new String[]{file.getPath()}, null, null);
     }
@@ -216,7 +216,7 @@ class Utils {
         }
     }
 
-    void copyExif(String folderName, String inpName, String outName, String orientation) {
+    void copyExif(String folderName, String inpName, String outName) {
         File inpFile = new File(folderName, inpName);
         File outFile = new File(folderName, outName);
 
@@ -263,7 +263,7 @@ class Utils {
             if (value != null)
                 newExif.setAttribute(attribute, value);
         }
-        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, orientation);
+        newExif.setAttribute(ExifInterface.TAG_ORIENTATION,"1");
         try {
             newExif.saveAttributes();
         } catch (IOException e) {
@@ -273,7 +273,7 @@ class Utils {
             public void run() {
                 outFile.setLastModified(inpFile.lastModified());
             }
-        }, 1000);
+        }, 500);
     }
 
     void deleteOldLogFiles() {

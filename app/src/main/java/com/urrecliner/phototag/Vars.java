@@ -3,10 +3,9 @@ package com.urrecliner.phototag;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
+
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -35,7 +34,7 @@ public class Vars {
     static SqueezeDB squeezeDB;
     static BuildDB buildDB;
     static MakeFolderThumbnail makeFolderThumbnail;
-    static MakeNewPhoto makeNewPhoto;
+    static SaveWithTags saveWithTags;
     static BuildBitMap buildBitMap;
     static ColorDraw colorDraw;
 

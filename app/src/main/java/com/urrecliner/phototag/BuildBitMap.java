@@ -57,15 +57,13 @@ class BuildBitMap {
         int degree = 0;
         switch (orient) {
             case "8":
-                degree = -90; // -90;
+                degree = -90;;
                 break;
             case "6":
                 degree = 90;
                 break;
             case "3":
-                if (outWidth > outHeight) {
-                    degree = -90;
-                }
+                degree = -180;
                 break;
         }
         if (degree != 0) {

@@ -7,14 +7,13 @@ import static com.urrecliner.phototag.Vars.fullFolder;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.makeFolderThumbnail;
-import static com.urrecliner.phototag.Vars.makeNewPhoto;
+import static com.urrecliner.phototag.Vars.saveWithTags;
 import static com.urrecliner.phototag.Vars.nowDownLoading;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.nowPos;
 import static com.urrecliner.phototag.Vars.photoAdapter;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.photoTags;
-import static com.urrecliner.phototag.Vars.photoView;
 import static com.urrecliner.phototag.Vars.placeActivity;
 import static com.urrecliner.phototag.Vars.placeInfos;
 import static com.urrecliner.phototag.Vars.placeType;
@@ -71,6 +70,18 @@ import java.util.TimerTask;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
+/* thumbnail 은 찍는 방향과 관계없이 가로 방향으로 만들어 줌 따라서 exif가
+    '3' 이면
+         buildDb 시 180 회전해서 보관,
+         tag editor에서도 회전해서 보여주고 180을 기억해둠
+        save with tag 일 때는 그 bitimage, orientation = '1'로 보관
+    '6' 이면
+        buildDb 시 90 회전해서 보관
+        tag editor애서도 회전해서 보여주고 90 을 기억해 둠
+        save with tag 일 때 그 bitImage, orientation = '1'로 보관
+ */
+
+
 public class TagPlaceActivity extends AppCompatActivity {
 
     ExifInterface exif = null;
@@ -81,8 +92,9 @@ public class TagPlaceActivity extends AppCompatActivity {
     PhotoTag orgPT, newPT;
     File fileFullName;
     String orient;
-    Bitmap bitmapImage;
-    ImageView photoImage, sigImage;
+    Bitmap viewImage;
+    ImageView photoView, sigView;
+    int degree = 0;
 
     static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
     static final SimpleDateFormat sdfFile = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
@@ -105,9 +117,6 @@ public class TagPlaceActivity extends AppCompatActivity {
         typeAdapter = new TypeAdapter(typeInfos);
         typeRecyclerView.setAdapter(typeAdapter);
 
-//        orgPT.isChecked = false;
-//        photoTags.set(nowPos, orgPT);
-//        photoAdapter.notifyItemChanged(nowPos, orgPT);
         utils.showFolder(this.getSupportActionBar());
 
         buildPhotoScreen();
@@ -119,35 +128,42 @@ public class TagPlaceActivity extends AppCompatActivity {
         fileFullName = new File (orgPT.fullFolder, orgPT.photoName);
         if (!fileFullName.exists())
             return;
-        photoImage = findViewById(R.id.image);
-        photoImage.post(this::adjust_SignaturePos);
-        bitmapImage = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
+        photoView = findViewById(R.id.image);
+        photoView.post(this::adjust_SignaturePos);
+        viewImage = BitmapFactory.decodeFile(fileFullName.getAbsolutePath());
         getPhotoExif(fileFullName);
         orgPT.orient = orient;
-        if (!orient.equals("1")) {
-            if (orient.equals("6")) {
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                bitmapImage = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, false);
-                orient = "1";
-            } else if (orient.equals("8")) {
-                Matrix matrix = new Matrix();
-                matrix.postRotate(-90);
-                bitmapImage = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, false);
-                orient = "1";
-            }
+        degree = 0;
+
+        int degree = 0;
+        switch (orient) {
+            case "8":
+                degree = -90;;
+                break;
+            case "6":
+                degree = 90;
+                break;
+            case "3":
+                degree = -180;
+                break;
+        }
+        if (degree != 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(degree);
+            viewImage = Bitmap.createBitmap(viewImage, 0, 0,
+                    viewImage.getWidth(), viewImage.getHeight(), matrix, false);
         }
 
-        photoImage.setImageBitmap(bitmapImage);
-        sigImage = findViewById(R.id.signature);
-        sigImage.setImageResource(sigColors[sharedSigNbr]);
-        sigImage.setOnClickListener(view -> {
+        photoView.setImageBitmap(viewImage);
+        sigView = findViewById(R.id.signature);
+        sigView.setImageResource(sigColors[sharedSigNbr]);
+        sigView.setOnClickListener(view -> {
             sharedSigNbr++;
             sharedSigNbr = sharedSigNbr % sigColors.length;
-            sigImage.setImageResource(sigColors[sharedSigNbr]);
+            sigView.setImageResource(sigColors[sharedSigNbr]);
         });
         PhotoViewAttacher pA;       // to enable zoom
-        pA = new PhotoViewAttacher(photoImage);
+        pA = new PhotoViewAttacher(photoView);
         pA.update();
         getLocationInfo();
         TextView tv = findViewById(R.id.photoName);
@@ -162,21 +178,11 @@ public class TagPlaceActivity extends AppCompatActivity {
         });
         ivGetPlaces.setImageResource(typeIcons[typeNumber]);
 
-        ImageView iVMark = findViewById(R.id.add_mark);
-        iVMark.setOnClickListener(view -> {
-            if (latitude == 0 && longitude == 0)
-                Toast.makeText(mContext,"No GPS Information to retrieve places",Toast.LENGTH_LONG).show();
-            EditText etPlace = findViewById(R.id.placeAddress);
-            nowPlace = etPlace.getText().toString();
-            if (nowPlace.length() > 2) {
-                newPT = makeNewPhoto.save(orgPT);
-                photoTags.add(nowPos, newPT);
-                photoAdapter.notifyItemInserted(nowPos);
-                finish();
-                makeFolderThumbnail.makeReady();
-            }
+        ImageView iVSave = findViewById(R.id.save_with_mark);
+        iVSave.setOnClickListener(view -> {
+            save_with_tags();
         });
-        iVMark.setAlpha(fileFullName.getName().endsWith("_ha.jpg") ? 0.2f: 1f);
+        iVSave.setAlpha(fileFullName.getName().endsWith("_ha.jpg") ? 0.2f: 1f);
 
         ImageView iVPaste = findViewById(R.id.pasteInfo);
         iVPaste.setOnClickListener(view -> {
@@ -202,6 +208,7 @@ public class TagPlaceActivity extends AppCompatActivity {
             PhotoTag photoOut = buildBitMap.updateThumbnail(orgPT);
             photoDao.insert(photoOut);
             photoAdapter.notifyItemChanged(nowPos);
+            photoAdapter.notifyItemRangeChanged((nowPos > 0) ? nowPos-1:0, 3);
         });
 
         ImageView iVRotateSave = findViewById(R.id.rotate_save);
@@ -210,15 +217,7 @@ public class TagPlaceActivity extends AppCompatActivity {
 
         ImageView ivRotate = findViewById(R.id.rotate);
         ivRotate.setOnClickListener(view -> {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(-90);
-            bitmapImage = Bitmap.createBitmap(bitmapImage, 0, 0, bitmapImage.getWidth(), bitmapImage.getHeight(), matrix, false);
-            photoImage.setImageBitmap(bitmapImage);
-            PhotoViewAttacher pA1;       // to enable zoom
-            pA1 = new PhotoViewAttacher(photoImage);
-            pA1.update();
-            iVRotateSave.setAlpha(1f);
-            adjust_SignaturePos();
+            rotate_photo(iVRotateSave);
         });
 
         final ImageView ivLeft = findViewById(R.id.imageL);
@@ -267,19 +266,44 @@ public class TagPlaceActivity extends AppCompatActivity {
         }
         else
             ivRight.setVisibility(View.INVISIBLE);
-//        if (sharedAutoLoad && !orgPT.photoName.endsWith("_ha.jpg")) {
-//            getPlaceByLatLng();
-//        }
+    }
+
+    private void save_with_tags() {
+        if (latitude == 0 && longitude == 0)
+            Toast.makeText(mContext,"No GPS Information to retrieve places",Toast.LENGTH_LONG).show();
+        EditText etPlace = findViewById(R.id.placeAddress);
+        nowPlace = etPlace.getText().toString();
+        if (nowPlace.length() > 2) {
+            newPT = saveWithTags.save(orgPT, viewImage);
+            photoTags.add(nowPos, newPT);
+            photoAdapter.notifyItemInserted(nowPos);
+            photoAdapter.notifyItemRangeChanged((nowPos > 0) ? nowPos-1:0, 3);
+            finish();
+            makeFolderThumbnail.makeReady();
+        }
+    }
+
+    private void rotate_photo(ImageView iVRotateSave) {
+        Matrix matrix = new Matrix();
+        degree -= 90;
+        matrix.postRotate(-90);
+        viewImage = Bitmap.createBitmap(viewImage, 0, 0, viewImage.getWidth(), viewImage.getHeight(), matrix, false);
+        photoView.setImageBitmap(viewImage);
+        PhotoViewAttacher pA1;       // to enable zoom
+        pA1 = new PhotoViewAttacher(photoView);
+        pA1.update();
+        iVRotateSave.setAlpha(1f);
+        adjust_SignaturePos();
     }
 
     private void adjust_SignaturePos() {
-        boolean landscape = bitmapImage.getWidth() > bitmapImage.getHeight();
+        boolean landscape = viewImage.getWidth() > viewImage.getHeight();
         int rightMargin = (landscape) ? 48: 200;
         int topMargin = ((landscape) ? 380: 48);
-        ConstraintLayout.LayoutParams lP = (ConstraintLayout.LayoutParams) sigImage.getLayoutParams();
+        ConstraintLayout.LayoutParams lP = (ConstraintLayout.LayoutParams) sigView.getLayoutParams();
         lP.topMargin = topMargin;
         lP.rightMargin = rightMargin;
-        sigImage.setLayoutParams(lP);
+        sigView.setLayoutParams(lP);
 
     }
     private Bitmap maskImage(Bitmap mainImage, boolean isRight) {
@@ -297,15 +321,21 @@ public class TagPlaceActivity extends AppCompatActivity {
         String orgName = orgPT.photoName;
         String tgtName = orgName.substring(0,orgName.length()-4)+"R.jpg";
         rotatedPhoto.photoName = tgtName;
-        photoDao.delete(rotatedPhoto);
-        utils.createPhotoFile(fullFolder, orgName, tgtName, bitmapImage, "1");
+
+        utils.createPhotoFile(fullFolder, orgName, tgtName, viewImage);
         rotatedPhoto.orient = "1";
         rotatedPhoto.isChecked = false;
         rotatedPhoto.photoName = tgtName;
         rotatedPhoto.thumbnail = null;
-        photoTags.add(nowPos, orgPT);
-        photoAdapter.notifyItemInserted(nowPos);
-        photoDao.insert(rotatedPhoto);
+        photoDao.insert(rotatedPhoto);      // insert or replace
+        if (nowPos > 0 && photoTags.get(nowPos-1).photoName.equals(tgtName)) {
+                photoTags.set(nowPos-1, rotatedPhoto);
+                photoAdapter.notifyItemChanged(nowPos-1);
+        } else {
+            photoTags.add(nowPos, rotatedPhoto);
+            photoAdapter.notifyItemInserted(nowPos);
+        }
+        photoAdapter.notifyItemRangeChanged((nowPos > 1) ? nowPos-2:0,4);
         MediaScannerConnection.scanFile(mContext,
                 new String[]{new File (fullFolder, tgtName).toString()}, null, null);
         finish();
@@ -316,8 +346,6 @@ public class TagPlaceActivity extends AppCompatActivity {
     private void getLocationInfo() {
         Geocoder geocoder = new Geocoder(this, Locale.KOREA);
         strPlace = "";
-//        nowLatLng = String.format(Locale.ENGLISH, "%.5f ; %.5f ; %.1f", latitude, longitude, altitude);
-//        nowLatLng = LatLngConv.latLng2String(latitude, longitude, altitude);
         strAddress = GPS2Address.get(geocoder, latitude, longitude);
         EditText et = findViewById(R.id.placeAddress);
         String text = "\n"+strAddress;
@@ -382,7 +410,7 @@ public class TagPlaceActivity extends AppCompatActivity {
                 "\nDevice: "+maker+" - "+model+"\nOrientation: "+ orient +
                 "\nLocation: "+latitude+", "+longitude+", "+altitude+
                 "\nDate Time: "+dateTimeFileName+
-                "\nSize: "+ bitmapImage.getWidth()+" x "+ bitmapImage.getHeight();
+                "\nSize: "+ viewImage.getWidth()+" x "+ viewImage.getHeight();
     }
 
     @Override
@@ -430,7 +458,7 @@ public class TagPlaceActivity extends AppCompatActivity {
                     new String[]{tgtFile.toString(), oldFile.toString()}, null, null);
             orgPT.photoName = tgtFile.getName();
             photoTags.set(nowPos, orgPT);
-            photoAdapter.notifyItemChanged(nowPos, orgPT);
+            photoAdapter.notifyItemRangeChanged((nowPos > 0) ? nowPos-1:0, 3);
             finish();
             return true;
         }
@@ -451,6 +479,7 @@ public class TagPlaceActivity extends AppCompatActivity {
                         photoTags.remove(pos);
                         makeFolderThumbnail.makeReady();
                         photoAdapter.notifyItemRemoved(nowPos);
+                        photoAdapter.notifyItemRangeChanged((nowPos > 0) ? nowPos-1:0,3);
                     }
                 })
                 .setNegativeButton("No",
@@ -464,6 +493,6 @@ public class TagPlaceActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
         int pos = (nowPos > 3) ? nowPos-3:0;
-        photoView.scrollToPosition(pos);
+        Vars.photoView.scrollToPosition(pos);
     }
 }

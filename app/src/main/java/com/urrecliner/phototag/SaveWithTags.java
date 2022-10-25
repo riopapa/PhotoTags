@@ -1,10 +1,5 @@
 package com.urrecliner.phototag;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import java.io.File;
-
 import static com.urrecliner.phototag.Vars.SUFFIX_JPG;
 import static com.urrecliner.phototag.Vars.buildBitMap;
 import static com.urrecliner.phototag.Vars.mContext;
@@ -12,11 +7,15 @@ import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.photoDao;
 import static com.urrecliner.phototag.Vars.utils;
 
-class MakeNewPhoto {
+import android.graphics.Bitmap;
+
+import java.io.File;
+
+class SaveWithTags {
 
     // create new photo file and insert to dao
 
-    PhotoTag save(PhotoTag orgPhoto)  {
+    PhotoTag save(PhotoTag orgPhoto, Bitmap viewImage)  {
         PhotoTag newPhoto = null;
         try {
             newPhoto = orgPhoto.clone();
@@ -25,7 +24,6 @@ class MakeNewPhoto {
         }
         File orgFile = new File(orgPhoto.fullFolder, orgPhoto.photoName);
         long timeStamp = utils.getFileDate(orgFile);
-        Bitmap bitmap = BitmapFactory.decodeFile(orgFile.getAbsolutePath());
 
         String sFood = " ", sPlace = " ", sAddress = " ";
         if (nowPlace != null) {
@@ -37,7 +35,7 @@ class MakeNewPhoto {
             } else
                 sAddress = s[0];
         }
-        bitmap = buildBitMap.addDateLocSignature(mContext, bitmap, timeStamp, sFood, sPlace, sAddress);
+        viewImage = buildBitMap.addDateLocSignature(mContext, viewImage, timeStamp, sFood, sPlace, sAddress);
         String orgName = orgPhoto.photoName;
         String tgtName = orgName.substring(0, orgName.length() - 4) + "_";
 
@@ -47,7 +45,7 @@ class MakeNewPhoto {
             tgtName += sPlace+"("+sFood+")";
         }
         tgtName += SUFFIX_JPG;
-        utils.createPhotoFile(orgPhoto.fullFolder, orgName, tgtName, bitmap, "1");
+        utils.createPhotoFile(orgPhoto.fullFolder, orgName, tgtName, viewImage);
         newPhoto.photoName = tgtName;
         newPhoto.thumbnail = null;
         photoDao.insert(newPhoto);

@@ -23,7 +23,7 @@ import static com.urrecliner.phototag.Vars.short2Folder;
 import static com.urrecliner.phototag.Vars.sizeX;
 import static com.urrecliner.phototag.Vars.spanWidth;
 import static com.urrecliner.phototag.Vars.squeezeDB;
-import static com.urrecliner.phototag.Vars.makeNewPhoto;
+import static com.urrecliner.phototag.Vars.saveWithTags;
 import static com.urrecliner.phototag.Vars.utils;
 
 import android.app.Dialog;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         askPermission();
         squeezeDB = new SqueezeDB();
         buildDB = new BuildDB();
-        makeNewPhoto = new MakeNewPhoto();
+        saveWithTags = new SaveWithTags();
         buildBitMap = new BuildBitMap();
         makeFolderThumbnail = new MakeFolderThumbnail();
 
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (dirInfoReady)
                     jump2Directory();
-            }, BACK_DELAY);
+            }, BACK_DELAY+400);
         }
     }
 
