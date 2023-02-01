@@ -21,7 +21,7 @@
         android:id="@+id/markDelete"
         android:orderInCategory="100"
         android:title="@string/delete"
-        android:icon="@mipmap/trash"
+        android:icon="@drawable/trash"
         app:showAsAction="always" />
 
 </menu>

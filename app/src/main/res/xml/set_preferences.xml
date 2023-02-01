@@ -21,7 +21,7 @@
             app:entries="@array/sort_values"
             app:entryValues="@array/sort_values"
             app:key="sort"
-            app:icon="@mipmap/sort"
+            app:icon="@drawable/sort"
             app:summary="how to list up nearby place list"
             app:title="@string/sort_title" />
 

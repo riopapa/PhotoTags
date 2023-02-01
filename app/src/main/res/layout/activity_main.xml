@@ -27,7 +27,7 @@
         android:layout_marginBottom="40dp"
         android:contentDescription="TODO"
         android:scaleType="centerCrop"
-        android:src="@mipmap/undo"
+        android:src="@drawable/undo"
         app:backgroundTint="#44FF0000"
         app:maxImageSize="48dp"
         android:layout_alignParentBottom="true"

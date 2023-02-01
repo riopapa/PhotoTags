@@ -106,7 +106,7 @@
         app:layout_constraintTop_toBottomOf="@id/placeAddress"
         app:layout_constraintLeft_toRightOf="@id/copyInfo"
         app:layout_constraintRight_toLeftOf="@id/rotate"
-        app:srcCompat="@mipmap/refresh" />
+        app:srcCompat="@drawable/refresh" />
 
     <ImageView
         android:id="@+id/rotate"
@@ -116,7 +116,7 @@
         app:layout_constraintTop_toBottomOf="@id/placeAddress"
         app:layout_constraintLeft_toRightOf="@id/refresh"
         app:layout_constraintRight_toLeftOf="@id/rotate_save"
-        app:srcCompat="@mipmap/rotate" />
+        app:srcCompat="@drawable/rotate" />
 
     <ImageView
         android:id="@+id/rotate_save"
@@ -126,7 +126,7 @@
         app:layout_constraintTop_toBottomOf="@id/placeAddress"
         app:layout_constraintLeft_toRightOf="@id/rotate"
         app:layout_constraintRight_toLeftOf="@id/showInfo"
-        app:srcCompat="@mipmap/save_rotate" />
+        app:srcCompat="@drawable/save_rotate" />
 
     <ImageView
         android:id="@+id/showInfo"
@@ -138,7 +138,7 @@
         app:layout_constraintLeft_toRightOf="@id/rotate_save"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintVertical_weight="1"
-        android:src="@mipmap/information"
+        android:src="@drawable/information"
         />
 
     <ImageView
