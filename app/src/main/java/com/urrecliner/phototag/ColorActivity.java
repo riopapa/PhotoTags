@@ -206,7 +206,7 @@ public class ColorActivity extends AppCompatActivity {
         paint.setTextSize(54);
         paint.setStrokeWidth(3);
         paint.setColor((modeIn) ? currOutColor:workColor);
-        paint.setTypeface(mContext.getResources().getFont(R.font.nanumbarungothic));
+        paint.setTypeface(mContext.getResources().getFont(R.font.ttangs_budae));
         int xPos = width / 2;
         int yPos = height - 24;
         int d = 4;

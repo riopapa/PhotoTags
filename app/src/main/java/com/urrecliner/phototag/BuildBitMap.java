@@ -155,12 +155,12 @@ class BuildBitMap {
     private void markDateTime(long timeStamp, int width, int height, Canvas canvas) {
         final SimpleDateFormat sdfDate = new SimpleDateFormat("`yy/MM/dd(EEE)", Locale.KOREA);
         final SimpleDateFormat sdfHourMin = new SimpleDateFormat("HH:mm", Locale.KOREA);
-        int fontSize = (width>height) ? (width+height)/45 : (width+height)/60;  // date time
+        int fontSize = (width>height) ? (width+height)/60 : (width+height)/80;  // date time
         String dateTime = sdfDate.format(timeStamp);
         int xPos = (width>height) ? width/8+fontSize: width/7+fontSize;
-        int yPos = (width>height) ? height/9: height/11;
+        int yPos = (width>height) ? height/11: height/13;
         drawTextOnCanvas(canvas, dateTime, fontSize, xPos, yPos);
-        yPos += fontSize;
+        yPos += fontSize*3/2;
         dateTime = sdfHourMin.format(timeStamp);
         fontSize = fontSize * 8 / 9;
         drawTextOnCanvas(canvas, dateTime, fontSize, xPos, yPos);
@@ -178,14 +178,14 @@ class BuildBitMap {
 
     private void markFoodPlaceAddress(int width, int height, Canvas canvas) {
 
-        int fontSize = (width>height) ? (height + width) / 50: (height + width) / 60;
+        int fontSize = (width>height) ? (height + width) / 60: (height + width) / 75;
         int xPos = width / 2;
-        int yPos = (width>height) ? height - fontSize*2: height - fontSize*2+4;
+        int yPos = (width>height) ? height - fontSize*3/2: height - fontSize*3/2+4;
         yPos = drawTextOnCanvas(canvas, sAddress, fontSize, xPos, yPos);
         fontSize = fontSize * 12 / 10;  // Place
-        yPos -= fontSize + fontSize / 3;
+        yPos -= fontSize + fontSize / 2;
         yPos = drawTextOnCanvas(canvas, sPlace, fontSize, xPos, yPos);
-        yPos -= fontSize + fontSize / 3; // food
+        yPos -= fontSize + fontSize / 2; // food
         drawTextOnCanvas(canvas, sFood, fontSize, xPos, yPos);
     }
 
@@ -225,7 +225,7 @@ class BuildBitMap {
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(textSize/4+3);
-        paint.setTypeface(mContext.getResources().getFont(R.font.nanumbarungothic));
+        paint.setTypeface(mContext.getResources().getFont(R.font.ttangs_budae));
         canvas.drawText(text, xPos, yPos, paint);
 
         paint.setColor(color);
