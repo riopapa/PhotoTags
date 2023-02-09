@@ -1,6 +1,6 @@
 package com.urrecliner.phototag;
 
-import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.drawPlaceInfo;
 import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.fullFolder;
@@ -62,7 +62,7 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class ActivityMain extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         squeezeDB = new SqueezeDB();
         buildDB = new BuildDB();
         saveWithTags = new SaveWithTags();
-        buildBitMap = new BuildBitMap();
+        drawPlaceInfo = new DrawPlaceInfo();
         makeFolderThumbnail = new MakeFolderThumbnail();
 
         photoDB = Room.databaseBuilder(getApplicationContext(), PhotoDataBase.class, "photoTag-db")
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         if (item.getItemId() == R.id.action_setting) {
-            intent = new Intent(MainActivity.this, SettingsActivity.class);
+            intent = new Intent(ActivityMain.this, ActivitySettings.class);
             startActivity(intent);
             return true;
         }
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void jump2Directory() {
-        Intent intent = new Intent(this, DirectoryActivity.class);
+        Intent intent = new Intent(this, ActivityDirectory.class);
         startActivity(intent);
     }
 
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void showDialog(String msg) {
         showMessageOKCancel(msg,
-                (dialog, which) -> MainActivity.this.requestPermissions(permissionsRejected.toArray(
+                (dialog, which) -> ActivityMain.this.requestPermissions(permissionsRejected.toArray(
                         new String[0]), ALL_PERMISSIONS_RESULT));
     }
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {

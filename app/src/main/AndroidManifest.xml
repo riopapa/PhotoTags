@@ -24,7 +24,7 @@
             android:value="@string/maps_api_key">
         </meta-data>
 
-        <activity android:name=".MainActivity"
+        <activity android:name=".ActivityMain"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TagPlaceActivity"
+        <activity android:name=".ActivityTagPlace"
             android:exported="true"
             tools:ignore="MissingClass">
             <intent-filter>
@@ -46,10 +46,10 @@
                 <data android:mimeType="image/*"/>
             </intent-filter>
         </activity>
-        <activity android:name=".DirectoryActivity" />
-        <activity android:name=".ColorActivity" />
-        <activity android:name=".SelectActivity" />
-        <activity android:name=".SettingsActivity"
+        <activity android:name=".ActivityDirectory" />
+        <activity android:name=".ActivityColor" />
+        <activity android:name=".ActivitySelect" />
+        <activity android:name=".ActivitySettings"
             android:theme="@style/MyPreference" />
         <provider
             android:name="androidx.core.content.FileProvider"

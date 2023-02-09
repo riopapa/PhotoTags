@@ -35,7 +35,7 @@ public class Vars {
     static BuildDB buildDB;
     static MakeFolderThumbnail makeFolderThumbnail;
     static SaveWithTags saveWithTags;
-    static BuildBitMap buildBitMap;
+    static DrawPlaceInfo drawPlaceInfo;
     static ColorDraw colorDraw;
 
     static String fullFolder = null;

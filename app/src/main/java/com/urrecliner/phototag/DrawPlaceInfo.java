@@ -5,14 +5,12 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 
 import androidx.exifinterface.media.ExifInterface;
 import androidx.core.content.ContextCompat;
@@ -30,7 +28,7 @@ import static com.urrecliner.phototag.Vars.sharedPref;
 import static com.urrecliner.phototag.Vars.sharedSigNbr;
 import static com.urrecliner.phototag.Vars.sigColors;
 
-class BuildBitMap {
+class DrawPlaceInfo {
 
     String sFood, sPlace, sAddress;
     Context context;
@@ -192,7 +190,7 @@ class BuildBitMap {
     int drawTextOnCanvas(Canvas canvas, String text, int fontSize, int xPos, int yPos) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(fontSize);
-        paint.setTypeface(Typeface.DEFAULT_BOLD);
+//        paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setTextAlign(Paint.Align.CENTER);
         int cWidth = canvas.getWidth() * 2 / 3;
         float tWidth = paint.measureText(text);
@@ -216,19 +214,20 @@ class BuildBitMap {
 
     void drawOutLinedText(Canvas canvas, String text, int xPos, int yPos, int textSize) {
 
-        int color = ContextCompat.getColor(mContext, R.color.infoColor);
+        int inColor = ContextCompat.getColor(mContext, R.color.infoColor);
+        int outColor = ContextCompat.getColor(mContext, R.color.infoOutColor);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setTypeface(Typeface.DEFAULT_BOLD);
+//        paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setAntiAlias(true);
         paint.setTextSize(textSize);
-        paint.setColor(Color.BLACK);
+        paint.setColor(outColor);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(textSize/4+3);
+        paint.setStrokeWidth(textSize/5f+3);
         paint.setTypeface(mContext.getResources().getFont(R.font.ttangs_budae));
-        canvas.drawText(text, xPos, yPos, paint);
+        canvas.drawText(text, xPos+3, yPos+3, paint);
 
-        paint.setColor(color);
+        paint.setColor(inColor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawText(text, xPos, yPos, paint);
     }

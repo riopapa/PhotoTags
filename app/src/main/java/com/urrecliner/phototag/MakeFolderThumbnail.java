@@ -110,6 +110,8 @@ public class MakeFolderThumbnail {
             fi.numberOfPics = photoSize;  // if size zero, ignore that folder
             if (photoSize != 0) {
                 File[] photo4 = new File[4];
+                for (int i = 0; i < 4; i++)
+                    photo4[i] = null;
                 try {
                     if (photoSize > 8) {
                         photo4[0] = new File(realFolder, photoNames.get(0));
@@ -143,13 +145,15 @@ public class MakeFolderThumbnail {
         @Override
         protected void onPostExecute(String doI) {
             dirInfoReady = true;
-            MainActivity.enableFolderIcon();
+            ActivityMain.enableFolderIcon();
             squeezeDB.squeeze();
             if (directoryAdapter != null)
                 directoryAdapter.notifyDataSetChanged();
         }
     }
 
+    int width, height, sWidth;
+    Bitmap sBitmap;
     private Bitmap buildOneDirImage(File [] photo4) {
         int x = 0,y = 0;
         int bitmapSize = sizeX / 6;
@@ -160,11 +164,17 @@ public class MakeFolderThumbnail {
         for (int i = 0; i < 4; i++) {
             if (photo4[i] != null) {
                 Bitmap oneBit = BitmapFactory.decodeFile(photo4[i].getAbsolutePath());
-                int width = oneBit.getWidth();
-                int height = oneBit.getHeight();
-                int sWidth = Math.min(width, height);
+                try {
+                    width = oneBit.getWidth();
+                    height = oneBit.getHeight();
+                    sWidth = Math.min(width, height);
+                    sBitmap = Bitmap.createBitmap(oneBit, (width - sWidth) / 2, (height - sWidth) / 2, sWidth, sWidth);
+                } catch (Exception e) {
+                    Log.e("Photo "+i, photo4[i].getAbsolutePath());
+                    e.printStackTrace();
+                    continue;
+                }
 
-                Bitmap sBitmap = Bitmap.createBitmap(oneBit, (width - sWidth) / 2, (height - sWidth) / 2, sWidth, sWidth);
                 sBitmap = Bitmap.createScaledBitmap(sBitmap, bitmapSize/2-2, bitmapSize/2-2, false);
                 switch (i) {
                     case 0:

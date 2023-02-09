@@ -2,12 +2,9 @@ package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.buildDB;
 import static com.urrecliner.phototag.Vars.dirActivity;
-import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.directoryAdapter;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -19,7 +16,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DirectoryActivity extends AppCompatActivity {
+public class ActivityDirectory extends AppCompatActivity {
 
     RecyclerView dirView;
 

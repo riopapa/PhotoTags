@@ -13,7 +13,7 @@ import static com.urrecliner.phototag.Vars.sharedSort;
 import static com.urrecliner.phototag.Vars.sharedSpan;
 import static com.urrecliner.phototag.Vars.utils;
 
-public class SettingsActivity extends AppCompatActivity  {
+public class ActivitySettings extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +79,7 @@ public class SettingsActivity extends AppCompatActivity  {
     @Override
     protected void onDestroy() {
         utils.getPreference();
-        MainActivity.prepareCards();
+        ActivityMain.prepareCards();
         super.onDestroy();
     }
 

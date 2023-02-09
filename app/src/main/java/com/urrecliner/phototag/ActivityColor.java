@@ -33,7 +33,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-public class ColorActivity extends AppCompatActivity {
+public class ActivityColor extends AppCompatActivity {
 
     boolean modeIn = true;
     int currInColor, currOutColor, workColor;
@@ -233,7 +233,7 @@ public class ColorActivity extends AppCompatActivity {
         editor.putInt("markTextOutColor", markTextOutColor);
         editor.apply();
         finish();
-//        Intent intent = new Intent(mContext, MainActivity.class);
+//        Intent intent = new Intent(mContext, ActivityMain.class);
 //        startActivity(intent);
     }
 

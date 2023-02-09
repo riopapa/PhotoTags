@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/border_back"
     android:id="@+id/main_layout"
-    tools:context=".MainActivity">
+    tools:context=".ActivityMain">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/photoView"

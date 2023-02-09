@@ -27,7 +27,7 @@ import static com.urrecliner.phototag.Vars.sharedSort;
 import static com.urrecliner.phototag.placeNearby.PlaceParser.pageToken;
 import static com.urrecliner.phototag.placeNearby.PlaceParser.NO_MORE_PAGE;
 
-public class SelectActivity extends AppCompatActivity {
+public class ActivitySelect extends AppCompatActivity {
 
     static CountDownTimer waitTimer = null;
     RecyclerView placeRecycleView;

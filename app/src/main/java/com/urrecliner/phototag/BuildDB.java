@@ -1,6 +1,6 @@
 package com.urrecliner.phototag;
 
-import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.drawPlaceInfo;
 import static com.urrecliner.phototag.Vars.dirInfoReady;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.photoDao;
@@ -94,12 +94,12 @@ class BuildDB {
 
         PhotoTag photoOut = photoDao.getByPhotoName(photoIn.fullFolder, photoIn.photoName);
         if (photoOut == null) {
-            photoOut = buildBitMap.updateThumbnail(photoIn);
+            photoOut = drawPlaceInfo.updateThumbnail(photoIn);
             photoDao.insert(photoOut);
             return photoOut;
         }
         if (photoOut.getThumbnail() == null) {
-            photoOut = buildBitMap.updateThumbnail(photoIn);
+            photoOut = drawPlaceInfo.updateThumbnail(photoIn);
             photoDao.update(photoOut);
             return photoOut;
         }

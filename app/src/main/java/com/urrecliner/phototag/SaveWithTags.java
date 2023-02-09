@@ -1,7 +1,7 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.SUFFIX_JPG;
-import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.drawPlaceInfo;
 import static com.urrecliner.phototag.Vars.mContext;
 import static com.urrecliner.phototag.Vars.nowPlace;
 import static com.urrecliner.phototag.Vars.photoDao;
@@ -35,7 +35,7 @@ class SaveWithTags {
             } else
                 sAddress = s[0];
         }
-        viewImage = buildBitMap.addDateLocSignature(mContext, viewImage, timeStamp, sFood, sPlace, sAddress);
+        viewImage = drawPlaceInfo.addDateLocSignature(mContext, viewImage, timeStamp, sFood, sPlace, sAddress);
         String orgName = orgPhoto.photoName;
         String tgtName = orgName.substring(0, orgName.length() - 4) + "_";
 

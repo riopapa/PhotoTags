@@ -12,6 +12,7 @@
 
     <color name="setBack">#DFDC07</color>
     <color name="infoColor">#FFFF35</color>
+    <color name="infoOutColor">#333307</color>
     <color name="xorColor">#888CABAB</color>
 
 </resources>

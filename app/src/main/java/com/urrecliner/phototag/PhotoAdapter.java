@@ -1,7 +1,7 @@
 package com.urrecliner.phototag;
 
 import static com.urrecliner.phototag.Vars.SUFFIX_JPG;
-import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.drawPlaceInfo;
 import static com.urrecliner.phototag.Vars.fabUndo;
 import static com.urrecliner.phototag.Vars.mActivity;
 import static com.urrecliner.phototag.Vars.mContext;
@@ -70,7 +70,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         private void loadTagActivity() {
             nowPos = getAbsoluteAdapterPosition();
-            Intent intent = new Intent(mContext, TagPlaceActivity.class);
+            Intent intent = new Intent(mContext, ActivityTagPlace.class);
             mActivity.startActivity(intent);
         }
 
@@ -82,7 +82,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             String shortName = photoTag.photoName;
             Bitmap photoMap = photoTag.getThumbnail().copy(Bitmap.Config.RGB_565, false);
             boolean checked = !photoTag.isChecked;
-            iVImage.setImageBitmap(checked ? buildBitMap.makeChecked(photoMap):photoMap);
+            iVImage.setImageBitmap(checked ? drawPlaceInfo.makeChecked(photoMap):photoMap);
             iVImage.setBackgroundColor(checked ? 0x7caee2dc:0xffffffff);
             tVInfo.setTextColor((shortName.endsWith(SUFFIX_JPG))? markedTextColor:unMarkedTextColor);
             tVInfo.setText(shortName);
@@ -120,7 +120,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         String photoName = nowPT.photoName;
         boolean checked = nowPT.isChecked;
         if (checked)
-            photoMap = buildBitMap.makeChecked(photoMap.copy(Bitmap.Config.ARGB_8888, false));
+            photoMap = drawPlaceInfo.makeChecked(photoMap.copy(Bitmap.Config.ARGB_8888, false));
         boolean landscape = photoMap.getWidth() > photoMap.getHeight();
         int width = (landscape) ? spanWidth:spanWidth * 6 / 10;
         int height = width*photoMap.getHeight()/photoMap.getWidth();

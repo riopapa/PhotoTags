@@ -1,6 +1,6 @@
 package com.urrecliner.phototag;
 
-import static com.urrecliner.phototag.Vars.buildBitMap;
+import static com.urrecliner.phototag.Vars.drawPlaceInfo;
 import static com.urrecliner.phototag.Vars.byPlaceName;
 import static com.urrecliner.phototag.Vars.copyPasteText;
 import static com.urrecliner.phototag.Vars.fullFolder;
@@ -57,6 +57,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.urrecliner.phototag.Utility.LatLngConv;
 import com.urrecliner.phototag.Utility.SharePhoto;
 import com.urrecliner.phototag.placeNearby.PlaceRetrieve;
 
@@ -82,7 +83,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  */
 
 
-public class TagPlaceActivity extends AppCompatActivity {
+public class ActivityTagPlace extends AppCompatActivity {
 
     ExifInterface exif = null;
     String strAddress = null, strPlace = null;
@@ -205,7 +206,7 @@ public class TagPlaceActivity extends AppCompatActivity {
 
         ImageView ivRefresh = findViewById(R.id.refresh);
         ivRefresh.setOnClickListener(view -> {
-            PhotoTag photoOut = buildBitMap.updateThumbnail(orgPT);
+            PhotoTag photoOut = drawPlaceInfo.updateThumbnail(orgPT);
             photoDao.insert(photoOut);
             photoAdapter.notifyItemChanged(nowPos);
             photoAdapter.notifyItemRangeChanged((nowPos > 0) ? nowPos-1:0, 3);
@@ -369,7 +370,7 @@ public class TagPlaceActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             public void run() {
                 iVPlace.setAlpha(1f);
-                Intent intent = new Intent(mContext, SelectActivity.class);
+                Intent intent = new Intent(mContext, ActivitySelect.class);
                 startActivity(intent);
             }
         }, 1500);
@@ -485,7 +486,7 @@ public class TagPlaceActivity extends AppCompatActivity {
                 .setNegativeButton("No",
                 (dialog, which) -> {
                 });
-        MainActivity.showPopup(builder);
+        ActivityMain.showPopup(builder);
     }
 
     @Override
