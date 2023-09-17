@@ -131,7 +131,8 @@ public class Vars {
             "parking", "school", "museum", "tourist_attraction", "amusement",
             "university", "atm", "zoo", "lodging",
             "all"};
-    static int[] sigColors = {R.mipmap.signature0, R.mipmap.signature1, R.mipmap.signature2,
-                R.mipmap.signature3, R.mipmap.signature4 };
+    static int[] sigColors = {R.mipmap.sign00, R.mipmap.sign01, R.mipmap.sign02,
+            R.mipmap.sign03, R.mipmap.sign04, R.mipmap.sign05, R.mipmap.sign06,
+            R.mipmap.sign06d, R.mipmap.sign07d, R.mipmap.sign08d };
 
 }

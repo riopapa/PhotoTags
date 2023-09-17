@@ -162,7 +162,7 @@
         app:layout_constraintTop_toTopOf="@id/image"
         android:contentDescription="@string/photo"
         app:layout_constraintRight_toRightOf="@id/image"
-        android:src="@mipmap/signature0"
+        android:src="@mipmap/sign00"
         />
 
     <ImageView

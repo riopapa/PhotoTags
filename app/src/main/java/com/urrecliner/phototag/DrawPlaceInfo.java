@@ -151,12 +151,12 @@ class DrawPlaceInfo {
     }
 
     private void markDateTime(long timeStamp, int width, int height, Canvas canvas) {
-        final SimpleDateFormat sdfDate = new SimpleDateFormat("`yy/MM/dd(EEE)", Locale.KOREA);
-        final SimpleDateFormat sdfHourMin = new SimpleDateFormat("HH:mm", Locale.KOREA);
-        int fontSize = (width>height) ? (width+height)/60 : (width+height)/80;  // date time
+        final SimpleDateFormat sdfDate = new SimpleDateFormat("`yy/MM/dd", Locale.KOREA);
+        final SimpleDateFormat sdfHourMin = new SimpleDateFormat("HH:mm(EEE)", Locale.KOREA);
+        int fontSize = (width>height) ? (width+height)/80 : (width+height)/120;  // date time
         String dateTime = sdfDate.format(timeStamp);
-        int xPos = (width>height) ? width/8+fontSize: width/7+fontSize;
-        int yPos = (width>height) ? height/11: height/13;
+        int xPos = (width>height) ? width/10+fontSize: width/8+fontSize;
+        int yPos = (width>height) ? height/12: height/14;
         drawTextOnCanvas(canvas, dateTime, fontSize, xPos, yPos);
         yPos += fontSize*3/2;
         dateTime = sdfHourMin.format(timeStamp);
@@ -165,18 +165,19 @@ class DrawPlaceInfo {
     }
 
     private void markSignature(int width, int height, Canvas canvas) {
-        int sigSize = (width + height) / 18;
         Bitmap signatureMap = buildSignatureMap();
-        Bitmap sigMap = Bitmap.createScaledBitmap(signatureMap, sigSize, sigSize, false);
-        int xPos = width - sigSize - width / 40;
+        int sigWidth = (width + height) / 24;
+        int sigHeight = sigWidth * signatureMap.getHeight() / signatureMap.getWidth();
+        Bitmap sigMap = Bitmap.createScaledBitmap(signatureMap, sigWidth, sigHeight, false);
+        int xPos = width - sigWidth - width / 40;
         int yPos = (width>height) ? height/16: height/20;
-        Paint paint = new Paint(); paint.setAlpha(Integer.parseInt(sharedAlpha));
+        Paint paint = new Paint(); // paint.setAlpha(Integer.parseInt(sharedAlpha));
         canvas.drawBitmap(sigMap, xPos, yPos, paint);
     }
 
     private void markFoodPlaceAddress(int width, int height, Canvas canvas) {
 
-        int fontSize = (width>height) ? (height + width) / 60: (height + width) / 75;
+        int fontSize = (width>height) ? (height + width) / 80: (height + width) / 95;
         int xPos = width / 2;
         int yPos = (width>height) ? height - fontSize*3/2: height - fontSize*3/2+4;
         yPos = drawTextOnCanvas(canvas, sAddress, fontSize, xPos, yPos);
@@ -190,7 +191,6 @@ class DrawPlaceInfo {
     int drawTextOnCanvas(Canvas canvas, String text, int fontSize, int xPos, int yPos) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(fontSize);
-//        paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setTextAlign(Paint.Align.CENTER);
         int cWidth = canvas.getWidth() * 2 / 3;
         float tWidth = paint.measureText(text);
@@ -224,7 +224,7 @@ class DrawPlaceInfo {
         paint.setColor(outColor);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(textSize/5f+3);
-        paint.setTypeface(mContext.getResources().getFont(R.font.ttangs_budae));
+        paint.setTypeface(mContext.getResources().getFont(R.font.the_jamsil));
         canvas.drawText(text, xPos+3, yPos+3, paint);
 
         paint.setColor(inColor);

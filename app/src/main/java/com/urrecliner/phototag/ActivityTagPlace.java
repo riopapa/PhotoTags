@@ -159,8 +159,7 @@ public class ActivityTagPlace extends AppCompatActivity {
         sigView = findViewById(R.id.signature);
         sigView.setImageResource(sigColors[sharedSigNbr]);
         sigView.setOnClickListener(view -> {
-            sharedSigNbr++;
-            sharedSigNbr = sharedSigNbr % sigColors.length;
+            sharedSigNbr = (++sharedSigNbr) % sigColors.length;
             sigView.setImageResource(sigColors[sharedSigNbr]);
         });
         PhotoViewAttacher pA;       // to enable zoom
