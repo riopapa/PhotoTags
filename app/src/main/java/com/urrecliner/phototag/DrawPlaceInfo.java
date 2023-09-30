@@ -153,7 +153,7 @@ class DrawPlaceInfo {
     private void markDateTime(long timeStamp, int width, int height, Canvas canvas) {
         final SimpleDateFormat sdfDate = new SimpleDateFormat("`yy/MM/dd", Locale.KOREA);
         final SimpleDateFormat sdfHourMin = new SimpleDateFormat("HH:mm(EEE)", Locale.KOREA);
-        int fontSize = (width>height) ? (width+height)/80 : (width+height)/120;  // date time
+        int fontSize = (width>height) ? (width+height)/60 : (width+height)/120;  // date time
         String dateTime = sdfDate.format(timeStamp);
         int xPos = (width>height) ? width/10+fontSize: width/8+fontSize;
         int yPos = (width>height) ? height/12: height/14;
@@ -171,17 +171,18 @@ class DrawPlaceInfo {
         Bitmap sigMap = Bitmap.createScaledBitmap(signatureMap, sigWidth, sigHeight, false);
         int xPos = width - sigWidth - width / 40;
         int yPos = (width>height) ? height/16: height/20;
-        Paint paint = new Paint(); // paint.setAlpha(Integer.parseInt(sharedAlpha));
+        Paint paint = new Paint();
+        paint.setAlpha(Integer.parseInt(sharedAlpha));
         canvas.drawBitmap(sigMap, xPos, yPos, paint);
     }
 
     private void markFoodPlaceAddress(int width, int height, Canvas canvas) {
 
-        int fontSize = (width>height) ? (height + width) / 80: (height + width) / 95;
+        int fontSize = (width>height) ? (height + width) / 60: (height + width) / 70;
         int xPos = width / 2;
         int yPos = (width>height) ? height - fontSize*3/2: height - fontSize*3/2+4;
         yPos = drawTextOnCanvas(canvas, sAddress, fontSize, xPos, yPos);
-        fontSize = fontSize * 12 / 10;  // Place
+        fontSize = fontSize * 11 / 10;  // Place
         yPos -= fontSize + fontSize / 2;
         yPos = drawTextOnCanvas(canvas, sPlace, fontSize, xPos, yPos);
         yPos -= fontSize + fontSize / 2; // food
